@@ -157,7 +157,7 @@
       <name>Fabric ID</name>
 
       <t>
-        RIFT operates on variants of Clos subtrates which are commonly called an IP Fabric. Since EVPN VLANs can
+        RIFT operates on variants of Clos substrate which are commonly called an IP Fabric. Since EVPN VLANs can
         be either contained within one fabric or span them, Auto-EVPN introduces the concept of a Fabric ID into RIFT.
       </t>
 
@@ -173,8 +173,8 @@
         (if fabric_id is not advertised by either node OR
         if fabric_id is identical on both nodes)
         AND
-        (if rift_evpn_ztp_version is not advertised by either node OR
-        if rift_evpn_ztp_version is identical on both nodes)
+        (if auto_evpn_version is not advertised by either node OR
+        if auto_evpn_version is identical on both nodes)
       </sourcecode>
 
       <t>The appendix details <xref target="app-src-lie-fabric-id">LIE</xref>
@@ -327,7 +327,7 @@
 
         <t>
           Type-5 EVPN IP Prefix with ToFs performing gateway functionality can also be derived and will be described
-          in future version of this document.
+          in a future version of this document.
         </t>
         <!--
         <t>If a leaf node is required to route to external destinations using Type-5 EVPN IP prefix routes, it MUST additionally be capable of deriving the following types of variables:</t>
@@ -356,7 +356,7 @@
         are derived from RIFT's FSM or ZTP mechanism so no additional flooding beside RIFT flooding is necessary for
         the functionality.</t>
       
-      <t>It is also important to mention that all variable derivation is in someway based on combinations of
+      <t>It is also important to mention that all variable derivation is in some way based on combinations of
         System ID, MAC-VRF ID, Fabric ID, EVI and VLAN
         and MUST comply precisely with calculation methods specified
         in the <xref target="app-additional" format="title"/> section to allow interoperability between
@@ -494,17 +494,17 @@
           </section>
           <section>
             <name>MAC Address</name>
-            <t>The first byte of the MAC address MUST be 02.  The reamining 5-bytes MUST be a hash of the
+            <t>The MAC address MUST be a unicast address and also MUST be identical for any IRB gateways that belong to an individual bridge-domain across fabrics.  The last 5-bytes MUST be a hash of the
               MAC-VRF ID and a constant value of 1 that is calculated using the previously mentioned random seed values.</t>
           </section>
           <section>
             <name>IPv6 IRB Gateway Address</name>
-            <t>The derived IPv6 gateway address MUST be from the ULA-scoped range of FD00:A3, which accounts for the first 6-bytes.
+            <t>The derived IPv6 gateway address MUST be from a ULA-scoped range that will account for the first 6-bytes.
               The next 5-bytes MUST be the last bytes of the derived MAC address.  Finally, the remaining 7-bytes MUST be ::0001.</t>
           </section>
           <section>
             <name>IPv4 IRB Gateway Address</name>
-            <t>The derived IPv4 gateway address MUST be from the RFC1918 range of 10/16, which accounts for the first octet.
+            <t>The derived IPv4 gateway address MUST be from a RFC1918 range, which accounts for the first octet.
               The next octet MUST a hash of the MAC-VRF ID and a constant value of 1 that is calculated using the previously
               mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>
           </section>
@@ -525,19 +525,17 @@
           </section>
           <section>
             <name>MAC Address</name>
-            <t>The first byte of the MAC address MUST be 02.  The remaining 5-bytes MUST be a hash of the MAC-VRF ID
-              and a constant value of 16 that is calculated using the previously mentioned random seed values.</t>
+            <t>The MAC address MUST be a unicast address and also MUST be identical for any IRB gateways that belong to an individual bridge-domain across fabrics.  The last 5-bytes MUST be a hash of the
+              MAC-VRF ID and a constant value of 1 that is calculated using the previously mentioned random seed values.</t>
           </section>
           <section>
             <name>IPv6 IRB Gateway Address</name>
-            <t>The derived IPv6 gateway address MUST be from the ULA-scoped range of FD00:A3, which accounts
-              for the first 6-bytes.  The next 5-bytes MUST be the last bytes of the derived MAC address.
+            <t>The derived IPv6 gateway address MUST be from a ULA-scoped range that will account for the first 6-bytes.  The next 5-bytes MUST be the last bytes of the derived MAC address.
               Finally, the remaining 7-bytes MUST be ::0001.</t>
           </section>
           <section>
             <name>IPv4 IRB Gateway Address</name>
-            <t>The derived IPv4 gateway address MUST be from the RFC1918 range of 10/16, which accounts
-              for the first octet.  The next octet MUST a hash of the MAC-VRF ID and a constant value of 16
+            <t>The derived IPv4 gateway address MUST be from a RFC1918 range, which accounts for the first octet.  The next octet MUST a hash of the MAC-VRF ID and a constant value of 16
               that is calculated using the previously mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>
           </section> 
         </section>
@@ -557,16 +555,16 @@
           </section>
           <section>
             <name>MAC Address</name>
-            <t>The first byte of the MAC address MUST be 02.  The reamining 5-bytes MUST be a hash of
-              the MAC-VRF ID and a constant value of 17 that is calculated using the previously mentioned random seed values.</t>
+            <t>The MAC address MUST be a unicast address and also MUST be identical for any IRB gateways that belong to an individual bridge-domain across fabrics.  The last 5-bytes MUST be a hash of the
+              MAC-VRF ID and a constant value of 1 that is calculated using the previously mentioned random seed values.</t>
           </section>
           <section>
             <name>IPv6 IRB Gateway Address</name>
-            <t>The derived IPv6 gateway address MUST be from the ULA-scoped range of FD00:A3, which accounts for the first 6-bytes.  The next 5-bytes MUST be the last bytes of the derived MAC address.  Finally, the remaining 7-bytes MUST be ::0001.</t>
+            <t>The derived IPv6 gateway address MUST be from a ULA-scoped range, which accounts for the first 6-bytes.  The next 5-bytes MUST be the last bytes of the derived MAC address.  Finally, the remaining 7-bytes MUST be ::0001.</t>
           </section>
           <section>
             <name>IPv4 IRB Gateway Address</name>
-            <t>The derived IPv4 gateway address MUST be from the RFC1918 range of 10/16, which accounts for the first octet.  The next octet MUST a hash of the MAC-VRF ID and a constant value of 17 that is calculated using the previously mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>
+            <t>The derived IPv4 gateway address MUST be from a RFC1918 range, which accounts for the first octet.  The next octet MUST a hash of the MAC-VRF ID and a constant value of 17 that is calculated using the previously mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>
           </section> 
         </section>
         <section>
@@ -764,7 +762,7 @@ struct LIEPacket {
 struct LIEPacket {
  ...
    /** It provides optional version of EVPN ZTP as 256 * MAJOR + MINOR */
-   26: optional i16                       evpn_ztp_version;
+   26: optional i16                       auto_evpn_version;
 ...
           </sourcecode>
         </section>
@@ -777,7 +775,7 @@ struct LIEPacket {
 struct NodeTIEElement {
 ...
    /** It provides optional version of EVPN ZTP as 256 * MAJOR + MINOR */
-   13: optional i16                         evpn_ztp_version;
+   13: optional i16                         auto_evpn_version;
           </sourcecode>
         </section>
         <section anchor="app-src-node-tie-fabric-id">
