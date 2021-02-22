@@ -26,7 +26,7 @@
         full title is longer than 39 characters -->
 
    <title abbrev="RIFT Auto-EVPN">RIFT Auto-EVPN</title>
-    <seriesInfo name="Internet-Draft" value="draft-jhead-rift-auto-evpn-00"/>
+    <seriesInfo name="Internet-Draft" value="draft-head-rift-auto-evpn-00"/>
    <author fullname="Jordan Head" initials="J." role="editor" surname="Head">
       <organization>Juniper Networks</organization>
       <address>
@@ -94,15 +94,15 @@
    <keyword>evpn</keyword>
 
    <abstract>
-      <t>This document specifies procedures that allow an EVPN overlay to be fully automatically
-      provisioned  when using RIFT as underlay and leveraging its no touch ZTP architecture.</t>
+      <t>This document specifies procedures that allow an EVPN overlay to be fully and automatically
+      provisioned when using RIFT as underlay and leveraging its no touch ZTP architecture.</t>
     </abstract>
   </front>
 
   <middle>
     <section numbered="true" toc="default">
       <name>Introduction</name>
-      <t>RIFT is a protocol that  focuses heavily on operational simplicity.
+      <t>RIFT is a protocol that focuses heavily on operational simplicity.
         <xref target="RIFT"/> natively supports Zero Touch Provisioning (ZTP) functionality that
       allows each node in an underlay network to automatically derive its place 
       in the topology and configure itself accordingly when properly cabled.  
@@ -157,8 +157,8 @@
       <name>Fabric ID</name>
 
       <t>
-        RIFT operates on variants of CLOS subtrates which are commonly called an IP Fabric. Since EVPN VLANs can
-        be either contained within one fabric or span them Auto-EVPN introduces the concept of a Fabric ID into RIFT.
+        RIFT operates on variants of Clos subtrates which are commonly called an IP Fabric. Since EVPN VLANs can
+        be either contained within one fabric or span them, Auto-EVPN introduces the concept of a Fabric ID into RIFT.
       </t>
 
       <t>This section describes an optional extension to LIE packet schema in the form of a 16-bit Fabric ID that
@@ -606,12 +606,10 @@
     <section numbered="true" toc="default">
       <name>Auto-EVPN Key Types</name>
       <t>This section defines and reserves necessary Key-Type values from the <xref target="RIFT-KV">RIFT Key-Type Registry</xref>.</t>
-
       <section numbered="true" toc="default" anchor="leaf-edge-kv">
         <name>Auto-EVPN Leaf Edge Gateway Key-Type</name>
         <t>The Leaf Edge Gateway Key-Type MUST contain the following information.</t>
         <artset>
-
           <artwork align="left" name="" type="ascii-art" src="art/auto-evpn-kv-leaf-gw.ascii-art"/>
         </artset> 
         <t>where:</t>
@@ -834,7 +832,6 @@ struct NodeTIEElement {
         </section>
         <section anchor="app-src-var-bgp-evi-vni">
           <name>VNI</name>
-          <sourcecode># VNITYPE CONSTANTS</sourcecode>
           <t>To be provided in future version of this document.</t>
         </section>
         <section anchor="app-src-var-bgp-evi-mac-gateway">
@@ -856,7 +853,6 @@ struct NodeTIEElement {
         <name>RIFT Key-Type Registry Requests</name>
         <t>This section requests the following suggested values from the RIFT Key-Type Registry.</t>
         <artset>
-
           <artwork align="left" name="" type="ascii-art" src="art/auto-evpn-kv-iana-entries.ascii-art"/>
         </artset>
       </section>
