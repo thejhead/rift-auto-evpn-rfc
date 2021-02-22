@@ -10,7 +10,7 @@ Expires: 26 August 2021                                 Juniper Networks
 
 
                              RIFT Auto-EVPN
-                     draft-jhead-rift-auto-evpn-00
+                      draft-head-rift-auto-evpn-00
 
 Abstract
 
@@ -852,8 +852,6 @@ A.3.9.  VLAN
 
 A.3.10.  VNI
 
-   # VNITYPE CONSTANTS
-
    To be provided in future version of this document.
 
 A.3.11.  Gateway (MAC)
@@ -886,6 +884,8 @@ Authors' Addresses
    United States of America
 
    Email: prz@juniper.net
+
+
 
 
 
