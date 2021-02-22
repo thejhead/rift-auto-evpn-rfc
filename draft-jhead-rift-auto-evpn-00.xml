@@ -94,23 +94,26 @@
    <keyword>evpn</keyword>
 
    <abstract>
-      <t>This document specifies procedures by which EVPN can be automatically 
-      provisioned using RIFT's ZTP and Key-Value store functionality.</t>
+      <t>This document specifies procedures that allow an EVPN overlay to be fully automatically
+      provisioned  when using RIFT as underlay and leveraging its no touch ZTP architecture.</t>
     </abstract>
   </front>
 
   <middle>
     <section numbered="true" toc="default">
       <name>Introduction</name>
-      <t>RIFT is a protocol that heavily focuses on operational simplicity.  
-        <xref target="RIFT">RIFT</xref> natively supports Zero Touch Provisioning (ZTP) functionality that 
+      <t>RIFT is a protocol that  focuses heavily on operational simplicity.
+        <xref target="RIFT"/> natively supports Zero Touch Provisioning (ZTP) functionality that
       allows each node in an underlay network to automatically derive its place 
       in the topology and configure itself accordingly when properly cabled.  
       RIFT can also disseminate Key-Value information contained 
       in Key-Value Topology Information Elements (KV-TIEs).  These KV-TIEs  
       can contain any information and therefore be used for any purpose.  
-      Leveraging these capabilities to automatically provision EVPN overlays 
-      would provide significant benefit to operators.</t>
+      Leveraging RIFT to provision EVPN overlays without any need for configuration and
+        leveraging KV capabilities to easily validate correct operation of such overlay
+        without a single point of failure
+      would provide significant benefit to operators in terms of simplicity and
+        robustness of such a solution.</t>
       <section numbered="true" toc="default">
         <name>Requirements Language</name>
         <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -122,8 +125,8 @@
     <section numbered="true" toc="default">
       <name>Design Considerations</name>
       <t>EVPN supports various service models, this document defines a method 
-      for the VLAN-Aware service model defined in <xref target="RFC7432">RFC7432</xref>.  Other service models 
-      may be considered in future revisions.</t>
+      for the VLAN-Aware service model defined in <xref target="RFC7432"/>.  Other service models
+      may be considered in future revisions of this document.</t>
       
       <t>Each model 
       has its own set of requirements for deployment.  For example, a 
@@ -132,36 +135,119 @@
       individual variables, such as each node's loopback address and AS 
       number for the BGP session.  Some of these variables may be coordinated 
       across each node in a network, but are ultimately locally significant 
-      (e.g. route targets)</t>
-           
-      <t>Similarly, calculation of some variables will be local only to each device while others will be learned via KV-TIEs.  In other words, not all variables are required to be advertised in KV-TIEs in order to avoid unnecessary flooding.</t>
+      (e.g. route distinguishers). Similarly, calculation of some variables will be local only to each device.
+      RIFT contains currently enough topology information in each node to calculate all those
+      necessary variables automatically. </t>
+
+      <t>
+        Once the EVPN overlay is configured and becomes operational KV TIEs can be used to
+        distribute state information to allow for validation of basic
+        operational correctness without
+        need for further tooling.
+      </t>
     </section>
-    
+
+    <section>
+      <name>System ID</name>
+      <t>The 64-bit RIFT System ID that uniquely identifies a node as defined in <xref target="RIFT">RIFT</xref>.</t>
+
+    </section>
+
+    <section>
+      <name>Fabric ID</name>
+
+      <t>
+        RIFT operates on variants of CLOS subtrates which are commonly called an IP Fabric. Since EVPN VLANs can
+        be either contained within one fabric or span them Auto-EVPN introduces the concept of a Fabric ID into RIFT.
+      </t>
+
+      <t>This section describes an optional extension to LIE packet schema in the form of a 16-bit Fabric ID that
+        identifies a nodes membership within a particular fabric.  Auto-EVPN capable nodes MUST support this extension
+        but MAY not advertise it when not participating in Auto-EVPN.
+        A non-present Fabric ID and value of 0 is reserved as ANY_FABRIC and MUST NOT be used for any other purpose.</t>
+
+      <t>Fabric ID MUST be considered in existing adjacency FSM rules so nodes that support Auto-EVPN can
+        interoperate with nodes that do not. The LIE validation is extended with following clause and if it
+        is not met, miscabling should be declared:</t>
+      <sourcecode>
+        (if fabric_id is not advertised by either node OR
+        if fabric_id is identical on both nodes)
+        AND
+        (if rift_evpn_ztp_version is not advertised by either node OR
+        if rift_evpn_ztp_version is identical on both nodes)
+      </sourcecode>
+
+      <t>The appendix details <xref target="app-src-lie-fabric-id">LIE</xref>
+        and <xref target="app-src-node-tie-fabric-id">Node-TIE</xref> schema changes.</t>
+    </section>
+
     <section numbered="true" toc="default">
       <name>Auto-EVPN Device Roles</name>
-      <t>Auto-EVPN requires that each node understand its given role within the scope of the EVPN implementation so each node derives only the necessary variables.  For example, a leaf node performing VXLAN gateway functions does not need to derive its own Cluster ID or learn one from the route reflector that it peers with via a KV-TIE.</t>
+      <t>Auto-EVPN requires that each node understand its given role within the scope of the EVPN implementation
+        so each node derives the necessary variables
+        and provides the necessary overlay configuration.
+        For example, a leaf node performing VXLAN gateway functions does not need to derive its own Cluster ID or
+        learn one from the route reflector that it peers with.</t>
       <!-- <artset>
         <artwork align="left" name="" type="svg" src="art/auto-evpn-topology.svg"></artwork>
         <artwork align="left" name="" type="ascii-art" src="art/auto-evpn-topology.ascii-art"></artwork>
       </artset>  -->
       <section>
-        <name>ToF Nodes as Route Reflectors</name>
-        <t>This section defines an Auto-EVPN role whereby Top-of-Fabric nodes act as route reflectors.  It is expected that route reflectors would establish IBGP sessions with leaf nodes in the same fabric.  The typical route reflector requirements do not change, however determining which specific values to use requires further consideration.  ToF nodes performing route reflector functionality MUST derive the following variables:</t>
+        <name>All Participating Nodes</name>
+        <t>
+          Not all nodes have to participate in Auto-EVPN but when they do they do assume EVPN roles and MUST
+          derive according variables:
+        </t>
         <ul empty="true" spacing="normal">
           <li>
             <dl newline="true" spacing="normal">
-              <dt><strong>IPv6 Loopback Address</strong></dt>
-              <dd>The source address for IBGP sessions with leaf nodes.  This MUST be advertised in the <xref target="tof-rr-kv" format="title"/>.</dd>
-              <dt><strong>Autonomous System Number</strong></dt>
-              <dd>The ASN for IBGP sessions with leaf nodes.  This MUST be advertised in the <xref target="tof-rr-kv" format="title"/>.</dd>
-              <dt><strong>Cluster ID</strong></dt>
-              <dd>The Cluster ID for Top-of-Fabric IBGP route reflection.</dd>
-              <dt><strong>Router ID</strong></dt>
+              <dt>
+                <strong>IPv6 Loopback Address</strong>
+              </dt>
+              <dd>Unique IPv6 loopback address used in BGP sessions.</dd>
+              <dt>
+                <strong>Router ID</strong>
+              </dt>
               <dd>The BGP Router ID.</dd>
+              <dt>
+                <strong>Autonomous System Number</strong>
+              </dt>
+              <dd>The ASN for IBGP sessions.</dd>
+              <dt>
+                <strong>Cluster ID</strong>
+              </dt>
+              <dd>The Cluster ID for Top-of-Fabric IBGP route reflection.</dd>
             </dl>
           </li>
-        </ul>      
-        
+        </ul>
+      </section>
+
+      <section>
+        <name>ToF Nodes as Route Reflectors</name>
+        <t>This section defines an Auto-EVPN role whereby some Top-of-Fabric nodes act as EVPN route reflectors.
+          It is expected that route reflectors would establish IBGP sessions with leaf nodes in the same fabric.
+          The typical route reflector requirements do not change, however determining which specific
+          values to use requires further consideration.
+          ToF nodes performing route reflector functionality MUST derive the following variables:</t>
+        <ul empty="true" spacing="normal">
+          <li>
+            <dl newline="true" spacing="normal">
+              <dt>
+                <strong>IPv6 RR Loopback Address</strong>
+              </dt>
+              <dd>The source address for IBGP sessions with leaf nodes in case ToF won election
+                for one of the route reflectors in the fabric.</dd>
+              <dt>
+                <strong>IPv6 RR Acceptable Prefix Range</strong>
+              </dt>
+              <dd>Range of addresses acceptable by the route reflector to form a IBGP session.
+                  This range covers ALL possible IPv6 Loopback Addresses derived by other Auto EVPN nodes in
+                the current fabric and other Auto-EVPN RRs addresses.</dd>
+            </dl>
+          </li>
+        </ul>
+
+        <!--
         <t>If Type-5 IP prefixes are being hosted on leaf edge gateways, the Top-of-Fabric nodes MUST be capable of routing toward the correct leaf node when it receives traffic from an external destination for a particular Type-5 IP prefix route.  Therefore, it MUST be capable of deriving the following types of variables:</t>
         <ul empty="true" spacing="normal">
           <li>
@@ -174,21 +260,22 @@
             <dd>The VNI that corresponds to the Type-5 IP prefix routes within an IP-VRF.</dd>
           </dl>
         </li>
-      </ul>   
-      </section>    
+      </ul>
+      -->
+      </section>
       <section>
-        <name>Leaf Nodes as Gateways</name>
-        <t>This section defines an Auto-EVPN role whereby leaf nodes act as layer-2 and/or layer-3 gateways.  Derivation procedures for BGP variables is almost identical to that of the route reflectors at the top of the fabric.  However, leaf nodes acting as gateways also have to derive variables necessary to build the rest of the EVPN overlay.</t>
-        <t>Leaf nodes as gateways MUST establish BGP connectivity with the Top-of-Fabric Route Reflectors and MUST derive the following variables:</t>
+        <name>Leaf Nodes</name>
+        <t>Leaf nodes derive their role from realizing they are at the bottom of the fabric, i.e. not having any
+        southbound adjacencies. Alternately, a node can assume a leaf node if it has only southbound adjacencies
+        to nodes with explicit LEAF_LEVEL to allow for scenarios where RIFT leaves do NOT participate in Auto-EVPN.</t>
+         <t>Leaf nodes  MUST derive the following variables:</t>
         <ul empty="true" spacing="normal">
           <li>
             <dl newline="true" spacing="normal">
-              <dt><strong>IPv6 Loopback Address</strong></dt>
-              <dd>The source address for both IBGP sessions with Top-of-Fabric route reflectors and VTEP.  This MUST be advertised in the <xref target="leaf-edge-kv" format="title"/>.</dd>
-              <dt><strong>Autonomous System Number</strong></dt>
-              <dd>The ASN for IBGP sessions with Top-of-Fabric route reflectors.  This MUST be advertised in the <xref target="leaf-edge-kv" format="title"/>.</dd>
-              <dt><strong>Router ID</strong></dt>
-              <dd>The BGP Router ID.</dd>
+              <dt><strong>IPv6 RR Loopback Adresses</strong></dt>
+              <dd>Addresses of the RRs present in the fabric. Those addresses are used to build BGP sessions to the RR.</dd>
+              <dt><strong>EVIs</strong></dt>
+              <dd>Leaf node derives all the necessary variables to instantiate EVIs with layer-2 and optionally layer-3 functionality.</dd>
             </dl>
           </li>
         </ul>  
@@ -201,26 +288,48 @@
               <dd>The route distinguisher corresponding to a MAC-VRF that uniquely identifies each node.</dd>
               <dt><strong>Route Target</strong></dt>
               <dd>The route target that corresponds to a MAC-VRF.</dd>
-              <dt><strong>VLAN</strong></dt>
-              <dd>The VLAN ID for each layer-2 network within a MAC-VRF.</dd>
-              <dt><strong>VNI</strong></dt>
-              <dd>The VNI that corresponds to the VLAN ID for each layer-2 network within a MAC-VRF.  This will contribute to the EVPN Type-2 route.</dd>
+              <dt><strong>MAC VRF name</strong></dt>
+              <dd>This is an optional variable to provide a common MAC VRF name across all leaves.</dd>
+              <dt><strong>Set of VLANs</strong></dt>
+              <dd>Those are VLANs provisioned either within the fabric or allowing to stretch across fabrics. </dd>
+
             </dl>
           </li>
-        </ul>  
+        </ul>
+
+        <t>For each VLAN derived in an EVI the following variables MUST be derived: </t>
+        <ul empty="true" spacing="normal">
+          <li>
+            <dl newline="true" spacing="normal">
+              <dt><strong>VLAN</strong></dt>
+              <dd>The VLAN ID.</dd>
+              <dt><strong>name</strong></dt>
+              <dd>This is an optional variable to provide a common VLAN name across all leaves.</dd>
+              <dt><strong>VNI</strong></dt>
+              <dd>The VNI that corresponds to the VLAN ID. This will contribute to the EVPN Type-2 route.</dd>
+              <dt><strong>IRB</strong></dt>
+              <dd>Optional variables of the IRB for the VLAN if the leaf performs layer-3 gateway function.</dd>
+            </dl>
+          </li>
+        </ul>
         
         <t>If a leaf node is required to perform layer-3 VXLAN gateway functions, it MUST additionally be capable of deriving the following types of variables:</t>
         <ul empty="true" spacing="normal">
           <li>
             <dl newline="true" spacing="normal">
               <dt><strong>IP Gateway MAC Address</strong></dt>
-              <dd>The MAC address associated with each IP gateway.</dd>
-              <dt><strong>IP Gateway Address</strong></dt>
-              <dd>The IPv4 and/or IPv6 gateway address.</dd>
+              <dd>The MAC address associated with IP gateway.</dd>
+              <dt><strong>IP Gateway Subnetted Address</strong></dt>
+              <dd>The IPv4 and/or IPv6 gateway address including its subnet length.</dd>
             </dl>
           </li>
         </ul>  
 
+        <t>
+          Type-5 EVPN IP Prefix with ToFs performing gateway functionality can also be derived and will be described
+          in future version of this document.
+        </t>
+        <!--
         <t>If a leaf node is required to route to external destinations using Type-5 EVPN IP prefix routes, it MUST additionally be capable of deriving the following types of variables:</t>
         <ul empty="true" spacing="normal">
           <li>
@@ -235,55 +344,53 @@
               <dd>The VNI that corresponds to the Type-5 IP prefix routes within an IP-VRF.</dd>
             </dl>
           </li>
-        </ul>  
+        </ul>
+        -->
       </section>
           
     </section>
     <section numbered="true" toc="default">
       <name>Auto-EVPN Variable Derivation</name>
-      <t>As previously mentioned, not all nodes are required to derive all variables in a given network (e.g. a transit spine node may not need to derive any).  Additionally, not all derived variables need to be advertised in KV-TIEs and therefore SHOULD be derived from RIFT's FSM or ZTP mechanism where possible in order to keep flooding to a minimum.</t>
+      <t>As previously mentioned, not all nodes are required to derive all variables in a given network (e.g. a transit
+        spine node may not need to derive any or participate in Auto-EVPN).  Additionally, all derived variables
+        are derived from RIFT's FSM or ZTP mechanism so no additional flooding beside RIFT flooding is necessary for
+        the functionality.</t>
       
-      <t>It is also important to mention that all variable derivation is in someway based on either System ID, MAC-VRF ID, and Fabric ID (or any combination thereof) and MUST comply with calculation methods specified in the <xref target="app-additional" format="title"/> section.</t>
+      <t>It is also important to mention that all variable derivation is in someway based on combinations of
+        System ID, MAC-VRF ID, Fabric ID, EVI and VLAN
+        and MUST comply precisely with calculation methods specified
+        in the <xref target="app-additional" format="title"/> section to allow interoperability between
+        different implementations.</t>
       <!-- <t>## JHEAD/TODO: BUILD EXAMPLE/OPERATIONAL SECTION W/ TOPOLOGY</t> -->
-      <section>
-        <name>System ID</name>
-        <t>The 64-bit RIFT System ID that uniquely identifies a node as defined in <xref target="RIFT">RIFT</xref>.</t>
- 
-        <t>System IDs ending in 01 and 02 MUST be reserved for Top-of-Fabric nodes acting as BGP route reflectors.</t>
-      </section>
 
       <section>
         <name>Auto-EVPN Version</name>
-        <t>This section describes extensions to both the RIFT LIE packet and Node-TIE schemas in the form of a 16-bit value that identifies the Auto-EVPN Version.  Auto-EVPN capable nodes MUST support this extension, but MAY choose not to advertise it in LIEs and Node-TIEs when Auto-EVPN is not being utilized.  Further consideration is 
-          required for RIFT's FSM, this will be described in the next section.  The appendix describes <xref target="app-src-lie-ver">LIE</xref> and <xref target="app-src-node-tie-ver">Node-TIE</xref> schema changes in detail.</t>
-      </section>
-
-      <section>
-        <name>Fabric ID</name>
-        <t>This section describes an extension to RIFT's LIE packet schema in the form of a 16-bit Fabric ID that identifies a nodes membership within a particular fabric.  Auto-EVPN capable nodes MUST support this extension, but MAY choose not to advertise it in LIEs and Node-TIEs when Auto-EVPN is not being utilized.  A Fabric ID with a value of 0 is reserved as DEFAULT_FABRIC_ID and MUST NOT be used for any other purpose.</t>
-  
-        <t>Fabric ID MUST also be considered in existing adjacency FSM rules so nodes that support Auto-EVPN can interoperate with nodes that don't, for example:</t>
-        <sourcecode>
-(if fabric_id is not advertised by either node OR  
- if fabric_id is identical on both nodes) 
-    AND
-(if rift_evpn_ztp_version is not advertised by either node OR
- if rift_evpn_ztp_version is identical on both nodes)
-        </sourcecode>
-  
-        <t>The appendix details <xref target="app-src-lie-fabric-id">LIE</xref> and <xref target="app-src-node-tie-fabric-id">Node-TIE</xref> schema changes, as well as <xref target="app-src-fsm">FSM</xref> changes.</t>
+        <t>This section describes extensions to both the RIFT LIE packet and Node-TIE schemas in the form
+          of a 16-bit value that identifies the Auto-EVPN Version.  Auto-EVPN capable nodes MUST support
+          this extension, but MAY choose not to advertise it in LIEs and Node-TIEs when Auto-EVPN is not being
+          utilized.
+          The appendix describes <xref target="app-src-lie-ver">LIE</xref> and <xref target="app-src-node-tie-ver">Node-TIE</xref>
+          schema changes in detail.</t>
       </section>
 
       <section>
         <name>MAC-VRF ID</name>
-        <t>This section describes a variable MAC-VRF ID that uniquely identifies an instance of EVPN instance (EVI) and is used in variable derivation procedures.  Each EVPN EVI MUST be associated with a unique MAC-VRF ID, this document does not specify a method for making that association or ensuring that they are coordinated properly across fabric(s).</t>
+        <t>This section describes a variable MAC-VRF ID that uniquely identifies an instance of EVPN instance (EVI) and is
+          used in variable derivation procedures.  Each EVPN EVI MUST be associated with a unique MAC-VRF ID,
+          this document does not specify a method for making that association or ensuring that they are coordinated properly across fabric(s).</t>
       </section>
 
       <section>
         <name>Loopback Address</name>
-        <t>First and foremost, RIFT does not advertise anything more specific than the fabric default route in the southbound direction by default.  However, Auto-EVPN nodes MUST advertise specific loopback addresses to all other Auto-EVPN nodes so to establish MP-BGP reachability.</t>
+        <t>First and foremost, RIFT does not advertise anything more specific than the fabric default route in the southbound
+          direction by default.  However, Auto-EVPN nodes MUST advertise specific loopback addresses southbound
+          to all other Auto-EVPN nodes so to establish MP-BGP reachability correctly in all scenarios.</t>
 
-        <t>Auto-EVPN nodes MUST derive a ULA-scoped IPv6 loopback address to be used as both the IBGP source address, as well as the VTEP source when VXLAN gateways are required.  Calculation is done using the 6-bytes of reserved ULA space, the 2-byte Fabric ID, and the node's 8-byte System ID.  Derivation of the System ID varies slightly depending upon the node's location/role in the fabric and will be described in subsequent sections.</t>
+        <t>Auto-EVPN nodes MUST derive a ULA-scoped IPv6 loopback address to be used as both the IBGP source address,
+          as well as the VTEP source when VXLAN gateways are required.  Calculation is done using the 6-bytes of
+          reserved ULA space, the 2-byte Fabric ID, and the node's 8-byte System ID.  Derivation of the System ID
+          varies slightly depending upon the node's location/role in the fabric and will be described in subsequent
+          sections.</t>
           
         <t>IPv4 addresses MAY be supported, but it should be noted that they have a higher likelihood of collision.</t>
 
@@ -291,26 +398,38 @@
 
         <section>
           <name>Leaf Nodes as Gateways</name>
-          <t>Leaf nodes acting as gateways MUST derive their loopback address from the FD00:A1 range.  Calculation is done using the 6-bytes of reserved ULA space, the 2-byte Fabric ID, and the node's 8-byte System ID.</t>
+          <t>
+            Calculation is done using the 6-bytes of reserved ULA space, the 2-byte Fabric ID,
+            and the node's 8-byte System ID.</t>
         </section>
 
         <section>
           <name>ToF Nodes as Route Reflectors</name>
-          <t>ToF nodes acting as route reflectors MUST derive their loopback address from the FD00:A2 range.  Calculation is done using the 6-bytes of reserved ULA space, the 2-byte Fabric ID, and the 8-byte System ID of each elected route reflector.</t>  
+          <t>ToF nodes acting as route reflectors MUST derive their loopback address according to the specific
+            section describing the algorithm.
+            Calculation is done using the 6-bytes of reserved ULA space, the 2-byte Fabric ID, and
+            the 8-byte System ID of each elected route reflector.</t>
           <section>
             <name>Route Reflector Election Procedures</name>
-            <t>At least one Top-of-Fabric node MUST be elected as an IBGP route reflector, though two or more RECOMMENDED for redundancy.  The route reflector election procedures are defined as follows:</t>
+            <t>Four Top-of-Fabric nodes MUST be elected as an IBGP route reflector.
+              Each ToF performs the election independently based on system IDs of other ToFs in the
+              fabric obtained via southbound reflection.
+              The route reflector election procedures are defined as follows:</t>
             <ol>
               <li>ToF node with the highest System ID.</li>
               <li>ToF node with the lowest System ID.</li>
               <li>ToF node with the 2nd highest System ID.</li>
               <li>ToF node with the 2nd lowest System ID.</li>
             </ol>
-            <t>This ordering is necessary to prevent a single node with either the highest or lowest System ID from triggering changes to route reflector loopback addresses as it would result in all BGP sessions dropping.  As mentioned in previous sections, System IDs ending in 01 or 02 are reserved for route reflectors, these values MUST be added to the elected System IDs.</t>
+            <t>This ordering is necessary to prevent a single node with either the highest or lowest System ID from
+              triggering changes to route reflector loopback addresses as it would result in all BGP sessions dropping.</t>
     
-            <t>For example, if two nodes, ToF01 and ToF02 with System IDs 002c6af5a281c000 and 002c6bf5788fc000 respectively, ToF02 would be elected due to it having the highest System ID of the ToFs (002c6bf5788fc000).  Then the reserved value of 01 would be added, resulting in a System ID of 002c6bf5788fc001, which in turn is used to calculate a loopback address of fd00:a201:0000:0000:002c:6bf5:788f:c001/128.</t>
+            <t>For example, if two nodes, ToF01 and ToF02 with System IDs 002c6af5a281c000 and 002c6bf5788fc000 respectively,
+              ToF02 would be elected due to it having the highest System ID of the ToFs (002c6bf5788fc000). If a ToF
+            determines that it is elected as route reflector, it uses the knowledge of its position in the list to
+            derive route reflector v6 loopback address. </t>
 
-            <t>Considerations for multiplane route reflector elections may be considered in future revisions.</t>
+            <t>Considerations for multiplane route reflector elections will be included in future revisions.</t>
           </section>
         </section>            
       </section>
@@ -336,7 +455,8 @@
 
       <section>
         <name>Route Target</name>
-        <t>Nodes hosting EVPN EVIs MUST derive a route target extended community based on the MAC-VRF ID for each EVI so that it is unique across the network.  Route targets MUST be of type 0 as per RFC4360.</t>
+        <t>Nodes hosting EVPN EVIs MUST derive a route target extended community based on the MAC-VRF ID for each EVI
+          so that it is unique across the network.  Route targets MUST be of type 0 as per RFC4360.</t>
 
         <t>For example, if given a MAC-VRF ID of 1, the derived route target would be "target:1"</t>
 
@@ -344,77 +464,101 @@
       </section>
       <section>
         <name>Route Distinguisher</name>
-        <t>Nodes hosting EVPN EVIs MUST derive a type-0 route distinguisher based on its System ID and Fabric ID so that it is unique per MAC-VRF and per node.</t>
+        <t>Nodes hosting EVPN EVIs MUST derive a type-0 route distinguisher based on its System ID
+          and Fabric ID so that it is unique per MAC-VRF and per node.</t>
 
         <t>The required algorithm can be found in the <xref target="app-src-var-bgp-evi-rd">appendix</xref>.</t>
       </section>
       <section>
         <name>EVPN MAC-VRF Services</name>
-        <t>It's obvious that applications utilizing Auto-EVPN overlay services may require a variety of layer-2 and/or layer-3 traffic considerations.  Variables supporting these services are also derived based on some combination of MAC-VRF ID, Fabric ID, and other constant values.  Integrated Routing and Bridging (IRB) gateway address derivation also leverages a set of constant "random seed" values to provide additional entropy.</t>
+        <t>It's obvious that applications utilizing Auto-EVPN overlay services may require a variety of layer-2
+          and/or layer-3 traffic considerations.  Variables supporting these services are also derived based
+          on some combination of MAC-VRF ID, Fabric ID, and other constant values.
+          Integrated Routing and Bridging (IRB) gateway address derivation also leverages a set of constant
+          "random seed" values to provide additional entropy.</t>
 
         <t>The required derivation procedures can be found in the <xref target="app-src-variable-derivation">appendix</xref>.</t>
         <section>
           <name>Untagged Traffic in Multiple Fabrics</name>
-          <t>This section defines a methods to derive unique VLAN, VNI, MAC, and gateway address values for deployments where untagged traffic is stretched across multiple fabrics.</t>
+          <t>This section defines a methods to derive unique VLAN, VNI, MAC, and gateway address values for deployments
+            where untagged traffic is stretched across multiple fabrics.</t>
           <section>
             <name>VLAN</name>
-            <t>Untagged traffic stretched across multiple fabrics MUST derive VLAN tags based on MAC-VRF ID in conjunction with a constant value of 1 (i.e. MAC-VRF ID + 1).</t>
+            <t>Untagged traffic stretched across multiple fabrics MUST derive VLAN tags based on MAC-VRF ID in
+              conjunction with a constant value of 1 (i.e. MAC-VRF ID + 1).</t>
           </section>
           <section>
             <name>VNI</name>
-            <t>Untagged traffic stretched across multiple fabrics MUST derive VNIs based on MAC-VRF ID and Fabric ID in conjunction with a constant value.  These VNIs MUST correspond to EVPN Type-2 routes.</t>
+            <t>Untagged traffic stretched across multiple fabrics MUST derive VNIs based on MAC-VRF ID and
+              Fabric ID in conjunction with a constant value.  These VNIs MUST correspond to EVPN Type-2 routes.</t>
           </section>
           <section>
             <name>MAC Address</name>
-            <t>The first byte of the MAC address MUST be 02.  The reamining 5-bytes MUST be a hash of the MAC-VRF ID and a constant value of 1 that is calculated using the previously mentioned random seed values.</t>
+            <t>The first byte of the MAC address MUST be 02.  The reamining 5-bytes MUST be a hash of the
+              MAC-VRF ID and a constant value of 1 that is calculated using the previously mentioned random seed values.</t>
           </section>
           <section>
             <name>IPv6 IRB Gateway Address</name>
-            <t>The derived IPv6 gateway address MUST be from the ULA-scoped range of FD00:A3, which accounts for the first 6-bytes.  The next 5-bytes MUST be the last bytes of the derived MAC address.  Finally, the remaining 7-bytes MUST be ::0001.</t>
+            <t>The derived IPv6 gateway address MUST be from the ULA-scoped range of FD00:A3, which accounts for the first 6-bytes.
+              The next 5-bytes MUST be the last bytes of the derived MAC address.  Finally, the remaining 7-bytes MUST be ::0001.</t>
           </section>
           <section>
             <name>IPv4 IRB Gateway Address</name>
-            <t>The derived IPv4 gateway address MUST be from the RFC1918 range of 10/16, which accounts for the first octet.  The next octet MUST a hash of the MAC-VRF ID and a constant value of 1 that is calculated using the previously mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>      
+            <t>The derived IPv4 gateway address MUST be from the RFC1918 range of 10/16, which accounts for the first octet.
+              The next octet MUST a hash of the MAC-VRF ID and a constant value of 1 that is calculated using the previously
+              mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>
           </section>
         </section>
         <section>
           <name>Tagged Traffic in Multiple Fabrics</name>
-          <t>This section defines a methods to derive unique VLAN, VNI, MAC, and gateway address values for deployments where tagged traffic is stretched across multiple fabrics.</t>
+          <t>This section defines a methods to derive unique VLAN, VNI, MAC, and gateway address values for
+            deployments where tagged traffic is stretched across multiple fabrics.</t>
           <section>
             <name>VLAN</name>
-            <t>Tagged traffic stretched across multiple fabrics MUST derive VLAN tags based on MAC-VRF ID in conjunction with a constant value of 16 (i.e. MAC-VRF ID + 16).</t>
+            <t>Tagged traffic stretched across multiple fabrics MUST derive VLAN tags based on MAC-VRF ID in
+              conjunction with a constant value of 16 (i.e. MAC-VRF ID + 16).</t>
           </section>
           <section>
             <name>VNI</name>
-            <t>Tagged traffic stretched across multiple fabrics MUST derive VNIs based on MAC-VRF ID and Fabric ID in conjunction with a constant value.  These VNIs MUST correspond to EVPN Type-2 routes.</t>
+            <t>Tagged traffic stretched across multiple fabrics MUST derive VNIs based on MAC-VRF ID and Fabric ID in
+              conjunction with a constant value.  These VNIs MUST correspond to EVPN Type-2 routes.</t>
           </section>
           <section>
             <name>MAC Address</name>
-            <t>The first byte of the MAC address MUST be 02.  The remaining 5-bytes MUST be a hash of the MAC-VRF ID and a constant value of 16 that is calculated using the previously mentioned random seed values.</t>
+            <t>The first byte of the MAC address MUST be 02.  The remaining 5-bytes MUST be a hash of the MAC-VRF ID
+              and a constant value of 16 that is calculated using the previously mentioned random seed values.</t>
           </section>
           <section>
             <name>IPv6 IRB Gateway Address</name>
-            <t>The derived IPv6 gateway address MUST be from the ULA-scoped range of FD00:A3, which accounts for the first 6-bytes.  The next 5-bytes MUST be the last bytes of the derived MAC address.  Finally, the remaining 7-bytes MUST be ::0001.</t>
+            <t>The derived IPv6 gateway address MUST be from the ULA-scoped range of FD00:A3, which accounts
+              for the first 6-bytes.  The next 5-bytes MUST be the last bytes of the derived MAC address.
+              Finally, the remaining 7-bytes MUST be ::0001.</t>
           </section>
           <section>
             <name>IPv4 IRB Gateway Address</name>
-            <t>The derived IPv4 gateway address MUST be from the RFC1918 range of 10/16, which accounts for the first octet.  The next octet MUST a hash of the MAC-VRF ID and a constant value of 16 that is calculated using the previously mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>
+            <t>The derived IPv4 gateway address MUST be from the RFC1918 range of 10/16, which accounts
+              for the first octet.  The next octet MUST a hash of the MAC-VRF ID and a constant value of 16
+              that is calculated using the previously mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>
           </section> 
         </section>
         <section>
           <name>Tagged Traffic in a Single Fabric</name>
-          <t>This section defines a methods to derive unique VLAN, VNI, MAC, and gateway address values for deployments where untagged traffic is contained within a single fabric.</t>
+          <t>This section defines a methods to derive unique VLAN, VNI, MAC, and gateway address values for
+            deployments where untagged traffic is contained within a single fabric.</t>
           <section>
             <name>VLAN</name>
-            <t>Tagged traffic contained to a single fabric MUST derive VLAN tags based on MAC-VRF ID and Fabric ID in conjunction with a constant value of 17 (i.e. MAC-VRF ID + Fabric ID + 17).</t>
+            <t>Tagged traffic contained to a single fabric MUST derive VLAN tags based on MAC-VRF ID
+              and Fabric ID in conjunction with a constant value of 17 (i.e. MAC-VRF ID + Fabric ID + 17).</t>
           </section>
           <section>
             <name>VNI</name>
-            <t>Tagged traffic contained to a single fabric MUST derive VNIs based on MAC-VRF ID and Fabric ID in conjunction with a constant value.  These VNIs MUST correspond to EVPN Type-2 routes.</t>
+            <t>Tagged traffic contained to a single fabric MUST derive VNIs based on MAC-VRF ID and
+              Fabric ID in conjunction with a constant value.  These VNIs MUST correspond to EVPN Type-2 routes.</t>
           </section>
           <section>
             <name>MAC Address</name>
-            <t>The first byte of the MAC address MUST be 02.  The reamining 5-bytes MUST be a hash of the MAC-VRF ID and a constant value of 17 that is calculated using the previously mentioned random seed values.</t>
+            <t>The first byte of the MAC address MUST be 02.  The reamining 5-bytes MUST be a hash of
+              the MAC-VRF ID and a constant value of 17 that is calculated using the previously mentioned random seed values.</t>
           </section>
           <section>
             <name>IPv6 IRB Gateway Address</name>
@@ -427,8 +571,7 @@
         </section>
         <section>
           <name>Traffic Routed to External Destinations</name>
-          <t>This section defines methods to derive variables for deployments where traffic is required to be routed toward external destinations via EVPN Type-5 IP Prefix routes.</t>
-          <section>
+           <section>
             <name>Route Distinguisher</name>
             <t>Nodes hosting IP Prefix routes MUST derive a type-0 route distinguisher based on its System ID and Fabric ID so that it is unique per IP-VRF and per node.</t>
 
@@ -440,6 +583,7 @@
         
             <t>The required algorithm can be found in the <xref target="app-src-var-bgp-evi-rt">appendix</xref>.</t>
           </section>
+          <!--
           <section>
             <name>IPv6 Loopback Address</name>
             <t>Nodes host IPv6 prefix routes MUST derive the additional IPv6 loopback address from the FD00:A3 range.  Calculation is done using the 6-bytes of reserved ULA space, the 2-byte Fabric ID, and the node's 8-byte System ID.</t>
@@ -452,40 +596,22 @@
             <name>VNI</name>
             <t>VNI values associated with IP prefix routes MUST be derived based on MAC-VRF ID and Fabric ID in conjunction with a constant value.  These VNIs MUST correspond to EVPN Type-5 routes.</t>
           </section>
+          -->
         </section>
 
       </section>
     </section>
 
+    <!--
     <section numbered="true" toc="default">
       <name>Auto-EVPN Key Types</name>
       <t>This section defines and reserves necessary Key-Type values from the <xref target="RIFT-KV">RIFT Key-Type Registry</xref>.</t>
-      
-        <section numbered="true" toc="default" anchor="tof-rr-kv">
-        <name>Auto-EVPN Top-of-Fabric Route Reflector Key-Type</name>
-        <t>The Top-of-Fabric Route Reflector Key-Type MUST contain the following information.</t>
-        <artset>
-          <!-- <artwork align="left" name="" type="svg" src="art/auto-evpn-kv-tof-rr.svg"/> -->
-          <artwork align="left" name="" type="ascii-art" src="art/auto-evpn-kv-tof-rr.ascii-art"/>
-        </artset> 
-        <t>where:</t>
-        <ul empty="true" spacing="normal">
-          <li>
-            <dl newline="true" spacing="normal">
-              <dt>Loopback Address:</dt>
-              <dd>A ToF node's auto-derived 128-bit IPv6 loopback address.</dd>
-              <dt>Autonomous System Number</dt>
-              <dd>The auto-derived IBGP AS number.</dd>
-            </dl>
-          </li>
-        </ul>          
-      </section>
 
       <section numbered="true" toc="default" anchor="leaf-edge-kv">
         <name>Auto-EVPN Leaf Edge Gateway Key-Type</name>
         <t>The Leaf Edge Gateway Key-Type MUST contain the following information.</t>
         <artset>
-          <!-- <artwork align="left" name="" type="svg" src="art/auto-evpn-kv-leaf-gw.svg"/> -->
+
           <artwork align="left" name="" type="ascii-art" src="art/auto-evpn-kv-leaf-gw.ascii-art"/>
         </artset> 
         <t>where:</t>
@@ -501,18 +627,17 @@
         </ul>                    
       </section>
     </section>
+    -->
   
     <section anchor="Acknowledgements" numbered="true" toc="default">
       <name>Acknowledgements</name>
-      <t>ACKNOWLEDGEMENTS TEXT</t>
+      <t>TBD</t>
     </section>
     <!-- Possibly a 'Contributors' section ... -->
     <section anchor="Security" numbered="true" toc="default">
       <name>Security Considerations</name>
       <t>This document introduces no new security concerns to RIFT or other
-        specifications referenced in this document given that the TIEs 
-        that carry KV pairs are already extensively secured by the
-        <xref target="RIFT">RIFT</xref> specification itself.</t>
+        specifications referenced in this document.</t>
     </section>
   </middle>
 
@@ -576,10 +701,11 @@
             <date month="May" year="2020"/>
           </front>
         </reference>
+        <!--
         <reference anchor="RIFT-KV">
           <front>
             <title>RIFT Keys Structure and Well-Known Registry in Key Value TIE</title>
-              <seriesInfo name="Work in Progress," value="draft-ietf-przygienda-kv-registry-01"/>
+              <seriesInfo name="Work in Progress," value="draft-head-rift-kv-registry"/>
             <author initials="J." surname="Head" fullname="Jordan Head">
               <organization/>
             </author>
@@ -589,6 +715,7 @@
             <date month="February" year="2021"/>
           </front>
         </reference>
+        -->
         <reference anchor="RFC7432" target="https://www.rfc-editor.org/info/rfc7432" xml:base="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7432.xml">
           <front>
             <title>BGP MPLS-Based Ethernet VPN</title>
@@ -625,13 +752,22 @@
         <section anchor="app-src-lie-ver">
           <name>Auto-EVPN Version</name>
           <sourcecode>
-          # MAIN-SPEC-LIKE SCHEMA
+struct LIEPacket {
+ ...
+   /** It provides the optional ID of the configured fabric  */
+   25: optional common.FabricIDType       fabric_id;
+...
           </sourcecode>
         </section>
         <section anchor="app-src-lie-fabric-id">
           <name>Fabric ID</name>
           <sourcecode>
-          # MAIN-SPEC-LIKE SCHEMA
+...
+struct LIEPacket {
+ ...
+   /** It provides optional version of EVPN ZTP as 256 * MAJOR + MINOR */
+   26: optional i16                       evpn_ztp_version;
+...
           </sourcecode>
         </section>
       </section>
@@ -640,87 +776,91 @@
         <section anchor="app-src-node-tie-ver">
           <name>Auto-EVPN Version</name>
           <sourcecode>
-          # MAIN-SPEC-LIKE SCHEMA
+struct NodeTIEElement {
+...
+   /** It provides optional version of EVPN ZTP as 256 * MAJOR + MINOR */
+   13: optional i16                         evpn_ztp_version;
           </sourcecode>
         </section>
         <section anchor="app-src-node-tie-fabric-id">
           <name>Fabric ID</name>
-          <sourcecode>
-          # MAIN-SPEC-LIKE SCHEMA
-          </sourcecode>
+<sourcecode>
+  struct NodeTIEElement {
+  ...
+    /** It provides the optional ID of the Fabric configured */
+   12: optional common.FabricIDType         fabric_id;
+</sourcecode>
         </section>
       </section>
-      <section anchor="app-src-fsm">
-        <name>RIFT Finite State Machine</name>
-        <sourcecode>
-          # MAIN-SPEC-LIKE FSM CHART (TONY TO GENERATE)
-        </sourcecode>
-      </section>
+
       
       <section anchor="app-src-variable-derivation">
         <name>Variable Derivation</name>
         <section anchor="app-src-random-seed">
           <name>Random Seed Values</name>
-          <sourcecode># RUST SOURCE</sourcecode>
+          <t>To be provided in future version of this document.</t>
         </section>
         <section anchor="app-src-var-fabric-id">
           <name>Fabric ID</name>
-          <sourcecode># RUST SOURCE</sourcecode>
+          <t>To be provided in future version of this document.</t>
         </section>
         <section anchor="app-src-var-bgp-v6-loopback">
           <name>Loopback Address</name>
-          <sourcecode># RUST SOURCE</sourcecode>
+          <t>To be provided in future version of this document.</t>
         </section>
         <section anchor="app-src-var-bgp-asn">
           <name>Autonomous System Number</name>
-          <sourcecode># RUST SOURCE</sourcecode>
+          <t>To be provided in future version of this document.</t>
         </section>
         <section anchor="app-src-var-bgp-cluster-id">
           <name>Cluster ID</name>
-          <sourcecode># RUST SOURCE</sourcecode>
+          <t>To be provided in future version of this document.</t>
         </section>
         <section anchor="app-src-var-bgp-rid">
           <name>Router ID</name>
-          <sourcecode># RUST SOURCE</sourcecode>
+          <t>To be provided in future version of this document.</t>
         </section>
         <section anchor="app-src-var-bgp-evi-rt">
           <name>Route Target</name>
-          <sourcecode># RUST SOURCE</sourcecode>
+          <t>To be provided in future version of this document.</t>
         </section>
         <section anchor="app-src-var-bgp-evi-rd">
           <name>Route Distinguisher</name>
-          <sourcecode># RUST SOURCE</sourcecode>
+          <t>To be provided in future version of this document.</t>
         </section>
         <section anchor="app-src-var-bgp-evi-vlan">
           <name>VLAN</name>
-          <sourcecode># RUST SOURCE</sourcecode>
+          <t>To be provided in future version of this document.</t>
         </section>
         <section anchor="app-src-var-bgp-evi-vni">
           <name>VNI</name>
           <sourcecode># VNITYPE CONSTANTS</sourcecode>
-          <sourcecode># RUST SOURCE</sourcecode>
+          <t>To be provided in future version of this document.</t>
         </section>
         <section anchor="app-src-var-bgp-evi-mac-gateway">
           <name>Gateway (MAC)</name>
-          <sourcecode># RUST SOURCE</sourcecode>
+          <t>To be provided in future version of this document.</t>
         </section>
         <section anchor="app-src-var-bgp-evi-v6-gateway">
           <name>Gateway (IPv6)</name>
-          <sourcecode># RUST SOURCE</sourcecode>
+          <t>To be provided in future version of this document.</t>
         </section>
         <section anchor="app-src-var-bgp-evi-v4-gateway">
           <name>Gateway (IPv4)</name>
-          <sourcecode># RUST SOURCE</sourcecode>
+          <t>To be provided in future version of this document.</t>
         </section>
       </section>
+
+      <!--
       <section numbered="true" toc="default">
         <name>RIFT Key-Type Registry Requests</name>
         <t>This section requests the following suggested values from the RIFT Key-Type Registry.</t>
         <artset>
-          <!-- <artwork align="left" name="" type="svg" src="art/auto-evpn-kv-iana-entries.svg"/> -->
+
           <artwork align="left" name="" type="ascii-art" src="art/auto-evpn-kv-iana-entries.ascii-art"/>
-        </artset> 
+        </artset>
       </section>
+      -->
     </section>
   </back>
 </rfc>
