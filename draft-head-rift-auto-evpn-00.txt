@@ -15,7 +15,7 @@ Expires: 26 August 2021                                 Juniper Networks
 Abstract
 
    This document specifies procedures that allow an EVPN overlay to be
-   fully automatically provisioned when using RIFT as underlay and
+   fully and automatically provisioned when using RIFT as underlay and
    leveraging its no touch ZTP architecture.
 
 Status of This Memo
@@ -194,13 +194,13 @@ Internet-Draft               RIFT Auto-EVPN                February 2021
 3.  System ID
 
    The 64-bit RIFT System ID that uniquely identifies a node as defined
-   in RIFT [RIFT].
+   in [RIFT].
 
 4.  Fabric ID
 
-   RIFT operates on variants of CLOS subtrates which are commonly called
+   RIFT operates on variants of Clos subtrates which are commonly called
    an IP Fabric.  Since EVPN VLANs can be either contained within one
-   fabric or span them Auto-EVPN introduces the concept of a Fabric ID
+   fabric or span them, Auto-EVPN introduces the concept of a Fabric ID
    into RIFT.
 
    This section describes an optional extension to LIE packet schema in
