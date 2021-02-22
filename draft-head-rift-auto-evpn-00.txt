@@ -198,7 +198,7 @@ Internet-Draft               RIFT Auto-EVPN                February 2021
 
 4.  Fabric ID
 
-   RIFT operates on variants of Clos subtrates which are commonly called
+   RIFT operates on variants of Clos substrate which are commonly called
    an IP Fabric.  Since EVPN VLANs can be either contained within one
    fabric or span them, Auto-EVPN introduces the concept of a Fabric ID
    into RIFT.
@@ -229,8 +229,8 @@ Internet-Draft               RIFT Auto-EVPN                February 2021
            (if fabric_id is not advertised by either node OR
            if fabric_id is identical on both nodes)
            AND
-           (if rift_evpn_ztp_version is not advertised by either node OR
-           if rift_evpn_ztp_version is identical on both nodes)
+           (if auto_evpn_version is not advertised by either node OR
+           if auto_evpn_version is identical on both nodes)
 
    The appendix details LIE (Appendix A.1.2) and Node-TIE
    (Appendix A.2.2) schema changes.
@@ -362,7 +362,7 @@ Internet-Draft               RIFT Auto-EVPN                February 2021
          length.
 
    Type-5 EVPN IP Prefix with ToFs performing gateway functionality can
-   also be derived and will be described in future version of this
+   also be derived and will be described in a future version of this
    document.
 
 6.  Auto-EVPN Variable Derivation
@@ -375,7 +375,7 @@ Internet-Draft               RIFT Auto-EVPN                February 2021
    functionality.
 
    It is also important to mention that all variable derivation is in
-   someway based on combinations of System ID, MAC-VRF ID, Fabric ID,
+   some way based on combinations of System ID, MAC-VRF ID, Fabric ID,
    EVI and VLAN and MUST comply precisely with calculation methods
    specified in the Appendix section to allow interoperability between
    different implementations.
@@ -582,32 +582,32 @@ Internet-Draft               RIFT Auto-EVPN                February 2021
 
 6.9.1.3.  MAC Address
 
-   The first byte of the MAC address MUST be 02.  The reamining 5-bytes
-   MUST be a hash of the MAC-VRF ID and a constant value of 1 that is
-   calculated using the previously mentioned random seed values.
+   The MAC address MUST be a unicast address and also MUST be identical
+   for any IRB gateways that belong to an individual bridge-domain
+   across fabrics.  The last 5-bytes MUST be a hash of the MAC-VRF ID
+   and a constant value of 1 that is calculated using the previously
+   mentioned random seed values.
 
 6.9.1.4.  IPv6 IRB Gateway Address
 
-   The derived IPv6 gateway address MUST be from the ULA-scoped range of
-   FD00:A3, which accounts for the first 6-bytes.  The next 5-bytes MUST
-   be the last bytes of the derived MAC address.  Finally, the remaining
+   The derived IPv6 gateway address MUST be from a ULA-scoped range that
+   will account for the first 6-bytes.  The next 5-bytes MUST be the
+   last bytes of the derived MAC address.  Finally, the remaining
    7-bytes MUST be ::0001.
 
 6.9.1.5.  IPv4 IRB Gateway Address
 
-   The derived IPv4 gateway address MUST be from the RFC1918 range of
-   10/16, which accounts for the first octet.  The next octet MUST a
-   hash of the MAC-VRF ID and a constant value of 1 that is calculated
-   using the previously mentioned random seed values.  Finally, the
-   remaining 2 octets MUST be 0 and 1 respectively.
+   The derived IPv4 gateway address MUST be from a RFC1918 range, which
+   accounts for the first octet.  The next octet MUST a hash of the MAC-
+   VRF ID and a constant value of 1 that is calculated using the
+   previously mentioned random seed values.  Finally, the remaining 2
+   octets MUST be 0 and 1 respectively.
 
 6.9.2.  Tagged Traffic in Multiple Fabrics
 
    This section defines a methods to derive unique VLAN, VNI, MAC, and
    gateway address values for deployments where tagged traffic is
    stretched across multiple fabrics.
-
-
 
 
 
@@ -632,24 +632,26 @@ Internet-Draft               RIFT Auto-EVPN                February 2021
 
 6.9.2.3.  MAC Address
 
-   The first byte of the MAC address MUST be 02.  The remaining 5-bytes
-   MUST be a hash of the MAC-VRF ID and a constant value of 16 that is
-   calculated using the previously mentioned random seed values.
+   The MAC address MUST be a unicast address and also MUST be identical
+   for any IRB gateways that belong to an individual bridge-domain
+   across fabrics.  The last 5-bytes MUST be a hash of the MAC-VRF ID
+   and a constant value of 1 that is calculated using the previously
+   mentioned random seed values.
 
 6.9.2.4.  IPv6 IRB Gateway Address
 
-   The derived IPv6 gateway address MUST be from the ULA-scoped range of
-   FD00:A3, which accounts for the first 6-bytes.  The next 5-bytes MUST
-   be the last bytes of the derived MAC address.  Finally, the remaining
+   The derived IPv6 gateway address MUST be from a ULA-scoped range that
+   will account for the first 6-bytes.  The next 5-bytes MUST be the
+   last bytes of the derived MAC address.  Finally, the remaining
    7-bytes MUST be ::0001.
 
 6.9.2.5.  IPv4 IRB Gateway Address
 
-   The derived IPv4 gateway address MUST be from the RFC1918 range of
-   10/16, which accounts for the first octet.  The next octet MUST a
-   hash of the MAC-VRF ID and a constant value of 16 that is calculated
-   using the previously mentioned random seed values.  Finally, the
-   remaining 2 octets MUST be 0 and 1 respectively.
+   The derived IPv4 gateway address MUST be from a RFC1918 range, which
+   accounts for the first octet.  The next octet MUST a hash of the MAC-
+   VRF ID and a constant value of 16 that is calculated using the
+   previously mentioned random seed values.  Finally, the remaining 2
+   octets MUST be 0 and 1 respectively.
 
 6.9.3.  Tagged Traffic in a Single Fabric
 
@@ -662,8 +664,6 @@ Internet-Draft               RIFT Auto-EVPN                February 2021
    Tagged traffic contained to a single fabric MUST derive VLAN tags
    based on MAC-VRF ID and Fabric ID in conjunction with a constant
    value of 17 (i.e.  MAC-VRF ID + Fabric ID + 17).
-
-
 
 
 
@@ -682,24 +682,26 @@ Internet-Draft               RIFT Auto-EVPN                February 2021
 
 6.9.3.3.  MAC Address
 
-   The first byte of the MAC address MUST be 02.  The reamining 5-bytes
-   MUST be a hash of the MAC-VRF ID and a constant value of 17 that is
-   calculated using the previously mentioned random seed values.
+   The MAC address MUST be a unicast address and also MUST be identical
+   for any IRB gateways that belong to an individual bridge-domain
+   across fabrics.  The last 5-bytes MUST be a hash of the MAC-VRF ID
+   and a constant value of 1 that is calculated using the previously
+   mentioned random seed values.
 
 6.9.3.4.  IPv6 IRB Gateway Address
 
-   The derived IPv6 gateway address MUST be from the ULA-scoped range of
-   FD00:A3, which accounts for the first 6-bytes.  The next 5-bytes MUST
-   be the last bytes of the derived MAC address.  Finally, the remaining
+   The derived IPv6 gateway address MUST be from a ULA-scoped range,
+   which accounts for the first 6-bytes.  The next 5-bytes MUST be the
+   last bytes of the derived MAC address.  Finally, the remaining
    7-bytes MUST be ::0001.
 
 6.9.3.5.  IPv4 IRB Gateway Address
 
-   The derived IPv4 gateway address MUST be from the RFC1918 range of
-   10/16, which accounts for the first octet.  The next octet MUST a
-   hash of the MAC-VRF ID and a constant value of 17 that is calculated
-   using the previously mentioned random seed values.  Finally, the
-   remaining 2 octets MUST be 0 and 1 respectively.
+   The derived IPv4 gateway address MUST be from a RFC1918 range, which
+   accounts for the first octet.  The next octet MUST a hash of the MAC-
+   VRF ID and a constant value of 17 that is calculated using the
+   previously mentioned random seed values.  Finally, the remaining 2
+   octets MUST be 0 and 1 respectively.
 
 6.9.4.  Traffic Routed to External Destinations
 
@@ -718,8 +720,6 @@ Internet-Draft               RIFT Auto-EVPN                February 2021
    unique across the network.  Route targets MUST be of type 0.
 
    The required algorithm can be found in the appendix (Appendix A.3.7).
-
-
 
 
 
@@ -775,7 +775,7 @@ A.1.2.  Fabric ID
    struct LIEPacket {
     ...
       /** It provides optional version of EVPN ZTP as 256 * MAJOR + MINOR */
-      26: optional i16                       evpn_ztp_version;
+      26: optional i16                       auto_evpn_version;
    ...
 
 
@@ -793,7 +793,7 @@ A.2.1.  Auto-EVPN Version
    struct NodeTIEElement {
    ...
       /** It provides optional version of EVPN ZTP as 256 * MAJOR + MINOR */
-      13: optional i16                         evpn_ztp_version;
+      13: optional i16                         auto_evpn_version;
 
 A.2.2.  Fabric ID
 
