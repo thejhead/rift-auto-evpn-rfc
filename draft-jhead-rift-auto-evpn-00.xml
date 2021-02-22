@@ -132,7 +132,7 @@
       individual variables, such as each node's loopback address and AS 
       number for the BGP session.  Some of these variables may be coordinated 
       across each node in a network, but are ultimately locally significant 
-      (e.g. route targets, VNI, etc.)</t>
+      (e.g. route targets)</t>
            
       <t>Similarly, calculation of some variables will be local only to each device while others will be learned via KV-TIEs.  In other words, not all variables are required to be advertised in KV-TIEs in order to avoid unnecessary flooding.</t>
     </section>
@@ -255,7 +255,7 @@
       <section>
         <name>Auto-EVPN Version</name>
         <t>This section describes extensions to both the RIFT LIE packet and Node-TIE schemas in the form of a 16-bit value that identifies the Auto-EVPN Version.  Auto-EVPN capable nodes MUST support this extension, but MAY choose not to advertise it in LIEs and Node-TIEs when Auto-EVPN is not being utilized.  Further consideration is 
-          required for RIFT's FSM, this will be descrbied in the next section.  The appendix describes <xref target="app-src-lie-ver">LIE</xref> and <xref target="app-src-node-tie-ver">Node-TIE</xref> schema changes in detail.</t>
+          required for RIFT's FSM, this will be described in the next section.  The appendix describes <xref target="app-src-lie-ver">LIE</xref> and <xref target="app-src-node-tie-ver">Node-TIE</xref> schema changes in detail.</t>
       </section>
 
       <section>
@@ -276,7 +276,7 @@
 
       <section>
         <name>MAC-VRF ID</name>
-        <t>This section describes a variable MAC-VRF ID that uniquely identifies each EVPN EVI and is used in variable derivation procedures.  Each EVPN EVI MUST be associated with a unique MAC-VRF ID, this document does not specify a method for making that association or ensuring that they are coordinated properly across fabric(s).</t>
+        <t>This section describes a variable MAC-VRF ID that uniquely identifies an instance of EVPN instance (EVI) and is used in variable derivation procedures.  Each EVPN EVI MUST be associated with a unique MAC-VRF ID, this document does not specify a method for making that association or ensuring that they are coordinated properly across fabric(s).</t>
       </section>
 
       <section>
@@ -285,7 +285,7 @@
 
         <t>Auto-EVPN nodes MUST derive a ULA-scoped IPv6 loopback address to be used as both the IBGP source address, as well as the VTEP source when VXLAN gateways are required.  Calculation is done using the 6-bytes of reserved ULA space, the 2-byte Fabric ID, and the node's 8-byte System ID.  Derivation of the System ID varies slightly depending upon the node's location/role in the fabric and will be described in subsequent sections.</t>
           
-        <t>IPv4 addressing MUST NOT be supported for BGP sessions in order to avoid address collision.</t>
+        <t>IPv4 addresses MAY be supported, but it should be noted that they have a higher likelihood of collision.</t>
 
         <t>The required algorithm can be found in the <xref target="app-src-var-bgp-v6-loopback">appendix</xref>.</t>
 
@@ -336,7 +336,7 @@
 
       <section>
         <name>Route Target</name>
-        <t>Nodes hosting EVPN EVIs MUST derive a route target extended community based on the MAC-VRF ID for each EVI so that it is unique across the network.  Route targets MUST be of type 0.</t>
+        <t>Nodes hosting EVPN EVIs MUST derive a route target extended community based on the MAC-VRF ID for each EVI so that it is unique across the network.  Route targets MUST be of type 0 as per RFC4360.</t>
 
         <t>For example, if given a MAC-VRF ID of 1, the derived route target would be "target:1"</t>
 
@@ -350,7 +350,7 @@
       </section>
       <section>
         <name>EVPN MAC-VRF Services</name>
-        <t>It's obvious that applications utilizing Auto-EVPN overlay services may require a variety of layer-2 and/or layer-3 traffic considerations.  Variables supporting these services are also derived based on some combination of MAC-VRF ID, Fabric ID, and other constant values.  IP gateway derivation also leverages a set of constant "random seed" values to provide additional entropy.</t>
+        <t>It's obvious that applications utilizing Auto-EVPN overlay services may require a variety of layer-2 and/or layer-3 traffic considerations.  Variables supporting these services are also derived based on some combination of MAC-VRF ID, Fabric ID, and other constant values.  Integrated Routing and Bridging (IRB) gateway address derivation also leverages a set of constant "random seed" values to provide additional entropy.</t>
 
         <t>The required derivation procedures can be found in the <xref target="app-src-variable-derivation">appendix</xref>.</t>
         <section>
@@ -369,12 +369,12 @@
             <t>The first byte of the MAC address MUST be 02.  The reamining 5-bytes MUST be a hash of the MAC-VRF ID and a constant value of 1 that is calculated using the previously mentioned random seed values.</t>
           </section>
           <section>
-            <name>IPv6 Gateway Address</name>
+            <name>IPv6 IRB Gateway Address</name>
             <t>The derived IPv6 gateway address MUST be from the ULA-scoped range of FD00:A3, which accounts for the first 6-bytes.  The next 5-bytes MUST be the last bytes of the derived MAC address.  Finally, the remaining 7-bytes MUST be ::0001.</t>
           </section>
           <section>
-            <name>IPv4 Gateway Address</name>
-            <t>The derived IPv4 gateway address MUST be from the RFC1918 range of 10/8, which accounts for the first octet.  The next octet MUST a hash of the MAC-VRF ID and a constant value of 1 that is calculated using the previously mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>      
+            <name>IPv4 IRB Gateway Address</name>
+            <t>The derived IPv4 gateway address MUST be from the RFC1918 range of 10/16, which accounts for the first octet.  The next octet MUST a hash of the MAC-VRF ID and a constant value of 1 that is calculated using the previously mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>      
           </section>
         </section>
         <section>
@@ -390,15 +390,15 @@
           </section>
           <section>
             <name>MAC Address</name>
-            <t>The first byte of the MAC address MUST be 02.  The reamining 5-bytes MUST be a hash of the MAC-VRF ID and a constant value of 16 that is calculated using the previously mentioned random seed values.</t>
+            <t>The first byte of the MAC address MUST be 02.  The remaining 5-bytes MUST be a hash of the MAC-VRF ID and a constant value of 16 that is calculated using the previously mentioned random seed values.</t>
           </section>
           <section>
-            <name>IPv6 Gateway Address</name>
+            <name>IPv6 IRB Gateway Address</name>
             <t>The derived IPv6 gateway address MUST be from the ULA-scoped range of FD00:A3, which accounts for the first 6-bytes.  The next 5-bytes MUST be the last bytes of the derived MAC address.  Finally, the remaining 7-bytes MUST be ::0001.</t>
           </section>
           <section>
-            <name>IPv4 Gateway Address</name>
-            <t>The derived IPv4 gateway address MUST be from the RFC1918 range of 10/8, which accounts for the first octet.  The next octet MUST a hash of the MAC-VRF ID and a constant value of 16 that is calculated using the previously mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>
+            <name>IPv4 IRB Gateway Address</name>
+            <t>The derived IPv4 gateway address MUST be from the RFC1918 range of 10/16, which accounts for the first octet.  The next octet MUST a hash of the MAC-VRF ID and a constant value of 16 that is calculated using the previously mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>
           </section> 
         </section>
         <section>
@@ -417,12 +417,12 @@
             <t>The first byte of the MAC address MUST be 02.  The reamining 5-bytes MUST be a hash of the MAC-VRF ID and a constant value of 17 that is calculated using the previously mentioned random seed values.</t>
           </section>
           <section>
-            <name>IPv6 Gateway Address</name>
+            <name>IPv6 IRB Gateway Address</name>
             <t>The derived IPv6 gateway address MUST be from the ULA-scoped range of FD00:A3, which accounts for the first 6-bytes.  The next 5-bytes MUST be the last bytes of the derived MAC address.  Finally, the remaining 7-bytes MUST be ::0001.</t>
           </section>
           <section>
-            <name>IPv4 Gateway Address</name>
-            <t>The derived IPv4 gateway address MUST be from the RFC1918 range of 10/8, which accounts for the first octet.  The next octet MUST a hash of the MAC-VRF ID and a constant value of 17 that is calculated using the previously mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>
+            <name>IPv4 IRB Gateway Address</name>
+            <t>The derived IPv4 gateway address MUST be from the RFC1918 range of 10/16, which accounts for the first octet.  The next octet MUST a hash of the MAC-VRF ID and a constant value of 17 that is calculated using the previously mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>
           </section> 
         </section>
         <section>
