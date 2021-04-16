@@ -95,7 +95,7 @@
 
    <abstract>
       <t>This document specifies procedures that allow an EVPN overlay to be fully and automatically
-      provisioned when using RIFT as underlay and leveraging its no touch ZTP architecture.</t>
+      provisioned when using RIFT as underlay by leveraging RIFT's no-touch ZTP architecture.</t>
     </abstract>
   </front>
 
@@ -195,8 +195,8 @@
       <section>
         <name>All Participating Nodes</name>
         <t>
-          Not all nodes have to participate in Auto-EVPN but when they do they do assume EVPN roles and MUST
-          derive according variables:
+          Not all nodes have to participate in Auto-EVPN, however if a node does assume an Auto-EVPN role, 
+          it MUST derive the following variables:
         </t>
         <ul empty="true" spacing="normal">
           <li>
@@ -480,7 +480,7 @@
         <t>The required derivation procedures can be found in the <xref target="app-src-variable-derivation">appendix</xref>.</t>
         <section>
           <name>Untagged Traffic in Multiple Fabrics</name>
-          <t>This section defines a methods to derive unique VLAN, VNI, MAC, and gateway address values for deployments
+          <t>This section defines methods to derive unique VLAN, VNI, MAC, and gateway address values for deployments
             where untagged traffic is stretched across multiple fabrics.</t>
           <section>
             <name>VLAN</name>
@@ -511,7 +511,7 @@
         </section>
         <section>
           <name>Tagged Traffic in Multiple Fabrics</name>
-          <t>This section defines a methods to derive unique VLAN, VNI, MAC, and gateway address values for
+          <t>This section defines methods to derive unique VLAN, VNI, MAC, and gateway address values for
             deployments where tagged traffic is stretched across multiple fabrics.</t>
           <section>
             <name>VLAN</name>
