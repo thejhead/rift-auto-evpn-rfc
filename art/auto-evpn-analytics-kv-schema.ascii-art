@@ -1,0 +1,68 @@
+include "common.thrift"
+
+namespace py auto_evpn_kv
+namespace rs models
+
+/** We don't need the full role structure, only an indication of the node's basic role */
+enum AutoEVPNRole {
+    ILLEGAL            = 0,
+    auto_evpn_leaf_erb = 1,
+    auto_evpn_tof_gw   = 2,
+}
+
+enum   KVTypes {
+    OUI       = 1,
+    WellKnown = 2,
+}
+
+const i8            AutoEVPNWellKnownKeyType  = 1
+typedef i32         AutoEVPNKeyIdentifier
+typedef i16         AutoEVPNCounterType
+typedef i32         AutoEVPNLongCounterType
+
+const i8            GlobalAutoEVPNTelemetryKV = 4
+const i8            AutoEVPNTelemetryKV       = 3
+
+/** Per the according RIFT draft the key comes from the well known space.
+    Part of the key is used as Fabric-ID.
+
+    1st     byte  MUST be = "Well-Known"
+    2nd     byte  MUST be = "Global Auto-EVPN Telemetry KV",
+    3rd/4th bytes MUST be = FabricIDType
+*/
+struct AutoEVPNTelemetryGlobalKV {
+    1: required   set<AutoEVPNRole>            auto_evpn_roles,
+
+    /** Established BGP peer count (for Auto-EVPN)
+    2: optional   AutoEVPNCounterType          established_bgp_peer_count,
+
+    /** Total BGP peer count (for Auto-EVPN)
+    3: optional   AutoEVPNCounterType          total_bgp_peer_count,
+}
+
+/** Per the according RIFT draft the key comes from the well known space.
+    Part of the key is used as MAC-VRF number.
+
+    1st     byte  MUST be = "Well-Known"
+    2nd     byte  MUST be = "MAC-VRF Auto-EVPN Telemetry KV",
+    3rd/4th bytes MUST be = MACVRFNumberType
+*/
+struct AutoEVPNTelemetryMACVRFKV {
+    /** Active CE interface count (up/up)
+    1: optional   AutoEVPNCounterType          active_ce_interfaces,
+
+    /** Total CE interface count
+    2: optional   AutoEVPNCounterType          total_ce_interfaces,
+
+    /** Active IRB interface count (up/up)
+    3: optional   AutoEVPNCounterType          active_irb_interfaces,
+
+    /** Total IRB interface count
+    4: optional   AutoEVPNCounterType          total_irb_interfaces,
+
+    /** Local EVPN Type-2 MAC route count
+    5: optional  AutoEVPNLongCounterType       local_evpn_type2_mac_routes,
+
+    /** Local EVPN Type-2 MAC/IP route count
+    6: optional  AutoEVPNLongCounterType       local_evpn_type2_mac_ip_routes,
+}
