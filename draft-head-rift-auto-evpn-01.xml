@@ -26,7 +26,7 @@
         full title is longer than 39 characters -->
 
    <title abbrev="RIFT Auto-EVPN">RIFT Auto-EVPN</title>
-    <seriesInfo name="Internet-Draft" value="draft-head-rift-auto-evpn-00"/>
+    <seriesInfo name="Internet-Draft" value="draft-head-rift-auto-evpn-01"/>
    <author fullname="Jordan Head" initials="J." role="editor" surname="Head">
       <organization>Juniper Networks</organization>
       <address>
