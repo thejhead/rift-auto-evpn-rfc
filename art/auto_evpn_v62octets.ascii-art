@@ -1,0 +1,3 @@
+pub(crate) fn auto_evpn_v62octets(a: Ipv6Addr) -> Vec<u8> {
+    a.octets().iter().cloned().collect()
+}

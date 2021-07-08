@@ -1,0 +1,23 @@
+/// local address with encoded fabric ID and system ID for collision free identifiers. Basis
+/// for several different prefixes.
+pub fn auto_evpn_v6prefixfidsid2loopback(v6pref: &str, fid: FabricIDType,
+                                         sid: UnsignedSystemID) -> Result<Ipv6Addr, ServiceErrorType> {
+    assert!(fid != 0);
+    let a = format!("{}{:02X}::{}",
+                    v6pref,
+                    fid as u16,
+                    sid.to_ne_bytes()
+                        .iter()
+                        .chunks(2)
+                        .into_iter()
+                        .map(|chunk|
+                            chunk.fold(0u16, |v, n| (v << 8) | *n as u16))
+                        .map(|v| format!("{:04X}", v))
+                        .collect::<Vec<_>>()
+                        .into_iter()
+                        .join(":")
+    );
+
+    Ipv6Addr::from_str(&a)
+        .map_err(|_| ServiceErrorType::INTERNALRIFTERROR)
+}

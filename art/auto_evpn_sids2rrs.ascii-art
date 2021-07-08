@@ -1,0 +1,12 @@
+pub(crate) fn auto_evpn_sids2rrs(mut v: Vec<UnsignedSystemID>) -> Vec<UnsignedSystemID> {
+    v.par_sort_unstable();
+    let r = if v.len() > 2 {
+        let mut s = v.split_off(v.len() / 2);
+        s.reverse();
+        interleave(v.into_iter(), s.into_iter()).collect()
+    } else {
+        v
+    };
+
+    r
+}

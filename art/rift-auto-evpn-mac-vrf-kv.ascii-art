@@ -8,5 +8,8 @@
 |      Operational IRB Interface Count,                         |
 |      Total IRB Interface Count,                               |
 |      EVPN Type-2 MAC Route Count,                             |
-|      EVPN Type-2 MAC/IP Route Count,)                         |
+|      EVPN Type-2 MAC/IP Route Count,                          |
+|      Configured VLAN Count,                                   |
+|      MAC-VRF Name,                                            |
+|      MAC-VRF Description,)                                    |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

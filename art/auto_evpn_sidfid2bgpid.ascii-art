@@ -1,0 +1,8 @@
+/// auto evpn BGP router ID
+pub fn auto_evpn_sidfid2bgpid(fid: FabricIDType, sid: UnsignedSystemID) -> u32 {
+    assert!(fid != 0);
+    let hs: u32 = ((sid & 0xffff_ffff_0000_0000) >> 32) as _;
+    let mut ls: u32 = (sid & 0xffff_ffff) as _;
+    ls = ls.rotate_right(7) ^ (fid as u32).rotate_right(13);
+    max(1, hs ^ ls) // never a 0
+}

@@ -1,0 +1,13 @@
+/// route distinguisher derivation
+pub fn auto_evpn_sidfid2rd(sid: UnsignedSystemID, fid: FabricIDType, extra: u32) -> RTDistinguisherType {
+    // generate type 0 route distinguisher, first 2 bytes 0 and then 6 bytes
+    assert!(fid != NO_FABRIC_ID);
+    // shift the 2 bytes we loose
+    let convsid = sid as RTDistinguisherType;
+    let hs = ((sid & 0xffff_0000_0000_0000) >> 32) as RTDistinguisherType;
+    let mut ls: RTDistinguisherType = convsid & 0x0000_ffff_ffff_ffff;
+    ls ^= hs;
+    ls ^= (fid as RTDistinguisherType).rotate_left(16);
+    ls ^= extra as RTDistinguisherType;
+    ls
+}

@@ -1,0 +1,4 @@
+/// high bits of type 5 VNI
+const TYPE5VNIHIGH: VNIType = 0x0080_0000;
+/// bitmask for type 2 VNI
+const TYPE2VNIMASK: VNIType = 0x00ff_ffff ^ TYPE5VNIHIGH;

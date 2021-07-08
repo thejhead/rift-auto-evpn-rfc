@@ -1,0 +1,29 @@
+pub fn auto_evpn_fidevividsid2v6subnet(fid: FabricIDType, evi: MACVRFNumberType,
+                                       vid: VLANIDType,
+                                       sid: UnsignedSystemID) -> Result<IPv6PrefixType, ServiceErrorType> {
+
+    assert!(NO_MACVRF != evi);
+
+    let sb = auto_evpn_v6hash(fid, evi, vid, sid);
+
+    let a = format!("{}:{:02X}{:02X}:{:02X}{:02X}:{:02X}{:02X}::1",
+                    AUTO_EVPN_V6IRBPREF,
+                    AUTO_EVPN_V6IRBPREFFIRSTBYTE,
+                    sb[3] ^ sb[0],
+                    sb[4] ^ sb[1],
+                    sb[5] ^ sb[2],
+                    sb[6],
+                    sb[7],
+    );
+
+    Ok(IPv6PrefixType {
+        address: Ipv6Addr::from_str(
+            &a)
+            .map_err(|_| {
+                ServiceErrorType::INTERNALRIFTERROR
+            })?
+            .octets()
+            .to_vec(),
+        prefixlen: 64,
+    })
+}

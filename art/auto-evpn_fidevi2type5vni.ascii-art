@@ -1,0 +1,4 @@
+/// type-5 VNI for an EVI
+pub fn auto_evpn_fidevi2type5vni(fid: FabricIDType, evi: MACVRFNumberType) -> VNIType {
+    TYPE5VNIHIGH | auto_evpn_fidevivid2vni(fid, evi, 0)
+}

@@ -1,0 +1,126 @@
+/**
+    Thrift file for common AUTO EVPN definitions for RIFT
+
+    Copyright (c) Juniper Networks, Inc., 2016-
+    All rights reserved.
+*/
+
+namespace py common_evpn
+namespace rs models
+
+include "common.thrift"
+include "encoding.thrift"
+include "statistics.thrift"
+
+const common.FabricIDType   default_fabric_id     = 1
+const i8                    default_evis          = 3
+const i8                    default_vlans_per_evi = 7
+
+typedef i32       RouterIDType
+typedef i32       ASType
+typedef i32       ClusterIDType
+
+struct EVPNAnyRole {
+    1: required   common.IPv6Address                    v6_loopback,
+    2: required   common.IPv6Address                    type5_v6_loopback,
+    3: required   common.IPv4Address                    type5_v4_loopback,
+    4: required   RouterIDType                          bgp_router_id,
+    5: required   ASType                                autonomous_system,
+    6: required   ClusterIDType                         cluster_id,
+    /** prefixes to be redistributed north */
+    7: required   set<common.IPPrefixType>              redistribute_north,
+    /** prefixes to be redistributed south */
+    8: required   set<common.IPPrefixType>              redistribute_south,
+    /** group name for evpn auto overlay */
+    9: required   string                                bgp_group_name,
+    /** fabric prefixes to be advertised in rift instead of default */
+   10: required   set<common.IPPrefixType>              fabric_prefixes,
+}
+
+struct PartialEVPNEVI {
+    // route target per RFC4360
+    1: required   CommunityType                         rt_target,
+    2: required   RTDistinguisherType                   rt_distinguisher,
+    3: required   RTDistinguisherType                   rt_type5_distinguisher,
+    5: required   string                                mac_vrf_name,
+    6: required   VNIType                               type5_vni,
+}
+
+struct EVPNRRRole {
+    2: required   common.IPv6Address                    v6_rr_addr_loopback,
+    3: required   common.IPv6PrefixType                 v6_peers_allowed_range,
+    4: required   map<MACVRFNumberType, PartialEVPNEVI> evis,
+}
+
+typedef i64         RTDistinguisherType
+typedef i64         RTTargetType
+typedef i16         MACVRFNumberType
+
+typedef i16         VLANIDType
+typedef binary      MACType
+
+typedef i16         UnitType
+
+struct IRBType {
+    1: required   string                                name,
+    2: required   UnitType                              unit,
+    /// constant
+    3: required   MACType                               mac,
+    /// contains address of the gateway as well
+    4: optional   common.IPv6PrefixType                 v6_subnet,
+    /// contains address of the gateway as well
+    5: optional   common.IPv4PrefixType                 v4_prefix,
+}
+
+typedef i32      VNIType
+
+struct VLANType {
+    1: optional   VLANIDType                            id,
+    2: required   string                                name,
+    3: optional   IRBType                               irb,
+    5: optional   bool                                  stretched = false,
+    6: optional   bool                                  is_native = false,
+}
+
+struct CEInterfaceType {
+    2: optional   common.IEEE802_1ASTimeStampType       moved_to_ce,
+    // we may not be able to obtain it in case of internal errors
+    3: optional   string                                platform_interface_name,
+}
+
+typedef i64       CommunityType
+
+struct EVPNEVI {
+    // route target per RFC4360
+    1: required   CommunityType                         rt_target,
+    2: required   RTDistinguisherType                   rt_distinguisher,
+    3: required   RTDistinguisherType                   rt_type5_distinguisher,
+    4: required   string                                mac_vrf_name,
+    // fabric unique 24 bits VNI on non-stretch, otherwise unique across fabrics
+    5: required   map<VNIType, VLANType>                vlans,
+    6: required   VNIType                               type5_vni,
+}
+
+struct EVPNLeafRole {
+    1: required   set<common.IPv6Address>               rrs,
+    2: required   map<MACVRFNumberType, EVPNEVI>        evis,
+    3: optional   map<common.LinkIDType,
+                      CEInterfaceType>                  ce_interfaces,
+
+    5: optional   binary                                leaf_unique_lacp_system_id,
+    6: optional   binary                                fabric_unique_lacp_system_id,
+}
+
+/// structure to indicate EVPN roles assumed and their variables for
+/// external platform to configure itself accordingly. Presence of
+/// according structure indicates that the role is assumed.
+struct EVPNRoles {
+    1: required  EVPNAnyRole                            generic,
+    2: optional  EVPNRRRole                             route_reflector,
+    3: optional  EVPNLeafRole                           leaf,
+}
+
+const common.TimeIntervalInSecType          default_leaf_delay = 120
+const common.TimeIntervalInSecType          default_interface_ce_delay = 180
+/// default delay before EVPNZTP FSM starts to compute anything
+const common.TimeIntervalInSecType          default_evpnztp_startup_delay = 60

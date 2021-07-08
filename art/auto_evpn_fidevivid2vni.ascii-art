@@ -1,0 +1,13 @@
+/// type-2 VNI for a specific VLAN
+pub fn auto_evpn_fidevivid2vni(fid: FabricIDType, evi: MACVRFNumberType, vlanid: VLANIDType) -> VNIType {
+    let rfid = fid as i32;
+    let revi = evi as i32;
+    let rvlan = vlanid as i32;
+// mask out high bits, VNI is only 24 bits
+    TYPE2VNIMASK &
+        (
+            rfid.rotate_left(16) ^
+                revi.rotate_left(12) ^
+                rvlan
+        )
+}

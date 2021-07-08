@@ -1,0 +1,66 @@
+/// indicates how many RRs we're computing in EVPN ZTP
+pub const MAX_AUTO_EVPN_RRS: usize = 3;
+/// indicates the fabric has no ID, used in computations to omit effects of fabric ID
+pub const NO_FABRIC_ID: FabricIDType = 0;
+/// invalid MACVRF number, MACVRFs start from 1
+pub const NO_MACVRF: MACVRFNumberType = 0;
+
+/// unique v6 prefix for all nodes starts with this
+pub const AUTO_EVPN_V6PREF: &str = "FD00:A1";
+/// how many bytes in a v6pref for RRs
+pub const AUTO_EVPN_V6PREFLEN: usize = 8 * 3;
+/// unique v6 prefix for route reflector purposes starts like this
+pub const AUTO_EVPN_V6RRPREF: &str = "FD00:A2";
+/// unique v6 prefix for type-5 purposes starts like this
+pub const AUTO_EVPN_V6T5PREF: &str = "FD00:A3";
+/// unique v6 prefix for IRB prefix purposes
+pub const AUTO_EVPN_V6IRBPREF: &str = "FD00";
+/// unique v6 prefix first byte for v6 IRB prefix purposes
+pub const AUTO_EVPN_V6IRBPREFFIRSTBYTE: u8 = 0xA4;
+/// unique v4 prefix for IRB purposes
+pub const AUTO_EVPN_V4IRBPREF: &str = "10";
+/// 3 bytes of prefix type and then we have fabric ID after that
+pub const AUTO_EVPN_V6_FABPREFIXLEN: usize = 8 + 8 + 8 + 16;
+
+/// per RFC magic
+const RT_TARGET_HIGH: CommunityType = 0;
+const RT_TARGET_LOW: CommunityType = 0;
+
+/// first available VLAN number
+pub const FIRST_VLAN: VLANIDType = 1;
+// maximum vlan number one less than maximum to use as bitmask
+pub const MAX_VLAN: VLANIDType = 4095;
+/// constant VLAN shift
+pub const FIRST_VLAN_SHIFT: VLANIDType = 16;
+/// NATIVE VLAN number
+pub const NATIVE_VLAN: VLANIDType = 1;
+
+/// abstract description of VLAN properties for a derived VLAN
+pub struct VLANDescription {
+    pub vlan_id: VLANIDType,
+    pub name: String,
+    /// can this VLAN be stretched across multiple fabrics
+    pub stretchable: bool,
+    pub native: bool,
+}
+
+/// maximum number of VLANs per MACVRF
+pub const MAX_VLANS_PER_EVI: usize = 15;
+
+pub type VLANStretchableType = bool;
+pub type VLANNativeType = bool;
+
+pub const EXTRATYPE5_RD_DISTINGUISHER: u32 = 0xffff_ffff;
+
+/// high bits of type 5 VNI
+const TYPE5VNIHIGH: VNIType = 0x0080_0000;
+/// bitmask for type 2 VNI
+const TYPE2VNIMASK: VNIType = 0x00ff_ffff ^ TYPE5VNIHIGH;
+
+/// random seeds used in several algorithms to increase entropy
+pub const RANDOMSEEDS: [u64; 4] = [
+    27008318799u64,
+    67438371571,
+    37087353685,
+    88675895388,
+];

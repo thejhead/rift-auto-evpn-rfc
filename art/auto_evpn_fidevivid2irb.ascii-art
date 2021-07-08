@@ -1,0 +1,12 @@
+/// IRB interface number.
+/// fid/evi combination shifted up to not interfere with the VLAN-ID
+/// and then add the VLAN-ID
+pub fn auto_evpn_fidevivid2irb(fid: FabricIDType, evi: MACVRFNumberType, vid: VLANIDType) -> UnitType {
+
+    assert!(NO_MACVRF != evi);
+
+    let mut v = (fid as UnitType ^ evi.rotate_left(4) as UnitType) << (16 - FIRST_VLAN.leading_zeros());
+
+    v = 1 + v.wrapping_add(vid) % MAX_VLAN;
+    v % (UnitType::MAX - 1)
+}

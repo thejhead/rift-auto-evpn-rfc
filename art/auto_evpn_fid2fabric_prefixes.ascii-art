@@ -1,0 +1,21 @@
+/// fabric prefixes derived instead of advertising default on the fabric to allow
+/// for default route on ToF or leaves
+pub fn auto_evpn_fid2fabric_prefixes(fid: FabricIDType) -> Result<Vec<IPPrefixType>, ServiceErrorType> {
+    vec![
+        (auto_evpn_fidsidv6loopback(fid, ILLEGAL_SYSTEM_I_D as _), AUTO_EVPN_V6PREFLEN),
+        (auto_evpn_fidrrpref2rrloopback(fid, ILLEGAL_SYSTEM_I_D as _), AUTO_EVPN_V6PREFLEN),
+    ]
+        .into_iter()
+        .map(|(p, _)|
+            match p {
+                Ok(_) => Ok(
+                    IPPrefixType::Ipv6prefix(
+                        IPv6PrefixType {
+                            address: auto_evpn_v62octets(p?),
+                            prefixlen: AUTO_EVPN_V6PREFLEN as _,
+                        })),
+                Err(e) => Err(e),
+            }
+        )
+        .collect::<Result<Vec<_>, _>>()
+}

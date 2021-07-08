@@ -1,0 +1,8 @@
+/// route target bytes are type0/0 and then add EVI
+pub fn auto_evpn_evi2rt(evi: MACVRFNumberType) -> CommunityType {
+    let wideevi = (evi + 1) as CommunityType;
+
+    (RT_TARGET_HIGH << (64 - 8)) | (RT_TARGET_LOW << 64 - 16) |
+        ((wideevi) << 17) |
+        ((wideevi))
+}

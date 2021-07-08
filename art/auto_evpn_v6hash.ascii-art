@@ -1,0 +1,13 @@
+/// generic v6 bytes derivation used for different purposes
+pub fn auto_evpn_v6hash(fid: FabricIDType, evi: MACVRFNumberType, vid: VLANIDType, sid: UnsignedSystemID)
+                        -> [u8; 8] {
+
+    let mut sub = evi.to_ne_bytes().iter()
+        .fold(RANDOMSEEDS[3], |r, e| r.rotate_left(6) ^ e.rotate_right(4) as u64);
+    sub ^= fid.to_ne_bytes().iter()
+        .fold(RANDOMSEEDS[0], |r, e| r.rotate_left(6) ^ e.rotate_right(4) as u64);
+    sub ^= vid as u64;
+    sub ^= sid;
+
+    sub.to_ne_bytes()
+}

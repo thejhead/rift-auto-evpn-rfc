@@ -1,0 +1,5 @@
+/// auto evpn V6 loopback for RRs
+pub fn auto_evpn_fidrrpref2rrloopback(fid: FabricIDType,
+                                      preference: u8) -> Result<Ipv6Addr, ServiceErrorType> {
+    auto_evpn_v6prefixfidsid2loopback(AUTO_EVPN_V6RRPREF, fid, (1 + preference) as _)
+}

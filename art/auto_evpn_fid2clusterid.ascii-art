@@ -1,0 +1,3 @@
+pub fn auto_evpn_fid2clusterid(fid: FabricIDType) -> u32 {
+    auto_evpn_fid2private_AS(fid)
+}

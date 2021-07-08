@@ -1,0 +1,41 @@
+/// v4 subnet derivation
+pub fn auto_evpn_v4prefixfidevividsid2v4subnet(v4pref: &str, fid: FabricIDType,
+                                               evi: MACVRFNumberType, vid: VLANIDType,
+                                               sid: UnsignedSystemID) -> Result<IPv4PrefixType, ServiceErrorType> {
+
+    assert!(NO_MACVRF != evi);
+
+    // fid can be 0 for stretched v4subnets
+    let mut sub = evi.to_ne_bytes().iter()
+        .fold((RANDOMSEEDS[0] & 0xff) as u8, |r, e| r.rotate_left(1) ^ e.rotate_right(1));
+    sub ^= fid.to_ne_bytes().iter()
+        .fold((RANDOMSEEDS[1] & 0xff) as u8, |r, e| r.rotate_left(2) ^ e.rotate_right(1));
+    sub ^= vid.to_ne_bytes().iter()
+        .fold((RANDOMSEEDS[2] & 0xff) as u8, |r, e| r.rotate_left(3) ^ e.rotate_right(1));
+
+    let subnet = sub % 254; // make sure we don't show multicast subnet
+
+    let _host = sid.to_ne_bytes().iter()
+        .fold(0u16, |r, e| r.rotate_left(3) ^ e.rotate_right(3) as u16);
+
+    let a = format!("{}.{}.{}.{}",
+                    v4pref,
+                    subnet,
+                    0,
+                    1,
+    );
+
+    Ok(
+        IPv4PrefixType {
+            address: Ipv4Addr::from_str(&a)
+                .map_err(|_| {
+                    ServiceErrorType::INTERNALRIFTERROR
+                })?
+                .octets()
+                .iter()
+                .fold(0u32, |v, nv| v << 8 | (*nv as u32)) as IPv4Address
+            ,
+            prefixlen: 16,
+        }
+    )
+}

@@ -149,7 +149,6 @@
     <section>
       <name>System ID</name>
       <t>The 64-bit RIFT System ID that uniquely identifies a node as defined in <xref target="RIFT">RIFT</xref>.</t>
-
     </section>
 
     <section>
@@ -169,11 +168,11 @@
         interoperate with nodes that do not. The LIE validation is extended with following clause and if it
         is not met, miscabling should be declared:</t>
       <sourcecode>
-        (if fabric_id is not advertised by either node OR
-        if fabric_id is identical on both nodes)
-        AND
-        (if auto_evpn_version is not advertised by either node OR
-        if auto_evpn_version is identical on both nodes)
+(if fabric_id is not advertised by either node OR
+ if fabric_id is identical on both nodes)
+    AND
+(if auto_evpn_version is not advertised by either node OR
+ if auto_evpn_version is identical on both nodes)
       </sourcecode>
 
       <t>The appendix details <xref target="app-src-lie-fabric-id">LIE</xref>
@@ -271,7 +270,7 @@
         <ul empty="true" spacing="normal">
           <li>
             <dl newline="true" spacing="normal">
-              <dt><strong>IPv6 RR Loopback Adresses</strong></dt>
+              <dt><strong>IPv6 RR Loopback Addresses</strong></dt>
               <dd>Addresses of the RRs present in the fabric. Those addresses are used to build BGP sessions to the RR.</dd>
               <dt><strong>EVIs</strong></dt>
               <dd>Leaf node derives all the necessary variables to instantiate EVIs with layer-2 and optionally layer-3 functionality.</dd>
@@ -348,6 +347,7 @@
       </section>
           
     </section>
+
     <section numbered="true" toc="default">
       <name>Auto-EVPN Variable Derivation</name>
       <t>As previously mentioned, not all nodes are required to derive all variables in a given network (e.g. a transit
@@ -358,9 +358,8 @@
       <t>It is also important to mention that all variable derivation is in some way based on combinations of
         System ID, MAC-VRF ID, Fabric ID, EVI and VLAN
         and MUST comply precisely with calculation methods specified
-        in the <xref target="app-additional" format="title"/> section to allow interoperability between
-        different implementations.</t>
-      <!-- <t>## JHEAD/TODO: BUILD EXAMPLE/OPERATIONAL SECTION W/ TOPOLOGY</t> -->
+        in the <xref target="app-additional-variable-derivation" format="title"/> section to allow interoperability between
+        different implementations.  All foundational code elements such as imports, constants, etc. are also mentioned there.</t>
 
       <section>
         <name>Auto-EVPN Version</name>
@@ -390,16 +389,19 @@
           reserved ULA space, the 2-byte Fabric ID, and the node's 8-byte System ID.  Derivation of the System ID
           varies slightly depending upon the node's location/role in the fabric and will be described in subsequent
           sections.</t>
-          
-        <t>IPv4 addresses MAY be supported, but it should be noted that they have a higher likelihood of collision.</t>
-
-        <t>The required algorithm can be found in the <xref target="app-src-var-bgp-v6-loopback">appendix</xref>.</t>
 
         <section>
           <name>Leaf Nodes as Gateways</name>
           <t>
             Calculation is done using the 6-bytes of reserved ULA space, the 2-byte Fabric ID,
             and the node's 8-byte System ID.</t>
+
+          <t>In order for leaf nodes to derive IPv6 loopback addresses, algorithms shown in both <xref target="auto_evpn_fidsidv6loopback">auto_evpn_fidsidv6loopback</xref> and 
+              <xref target="auto_evpn_v6prefixfidsid2loopback">auto_evpn_v6prefixfidsid2loopback</xref> are required.</t>
+
+          <t>IPv4 addresses MAY be supported, but it should be noted that they have a higher likelihood of collision.  The appendix 
+            contains the required <xref target="auto_evpn_fidsid2v4loopback">auto_evpn_fidsid2v4loopback</xref> algorithm to support IPv4 loopback 
+            derivation.</t>
         </section>
 
         <section>
@@ -408,6 +410,12 @@
             section describing the algorithm.
             Calculation is done using the 6-bytes of reserved ULA space, the 2-byte Fabric ID, and
             the 8-byte System ID of each elected route reflector.</t>
+
+          <t>In order for the ToF nodes to derive IPv6 loopbacks, the algorithms shown in both <xref target="auto_evpn_fidsidv6loopback">auto_evpn_fidsidv6loopback</xref> and 
+            <xref target="auto_evpn_fidrrpref2rrloopback">auto_evpn_fidrrpref2rrloopback</xref> are required.</t>
+          
+          <t>In order for the ToF derive the necessary prefix range to facilitate peering requests from any leaf, the algorithm shown in <xref target="auto_evpn_fid2fabric_prefixes">"auto_evpn_fid2fabric_prefixes"</xref> is required.</t>
+
           <section>
             <name>Route Reflector Election Procedures</name>
             <t>Four Top-of-Fabric nodes MUST be elected as an IBGP route reflector.
@@ -428,6 +436,8 @@
             determines that it is elected as route reflector, it uses the knowledge of its position in the list to
             derive route reflector v6 loopback address. </t>
 
+            <t>The algorithm shown in <xref target="auto_evpn_sids2rrs">"auto_evpn_sids2rrs"</xref> is required to accomplish this.</t>
+
             <t>Considerations for multiplane route reflector elections will be included in future revisions.</t>
           </section>
         </section>            
@@ -437,19 +447,21 @@
         <name>Autonomous System Number</name>
         <t>Nodes in each fabric MUST derive a private autonomous system number based on its Fabric ID so that it is unique across the fabric.</t>
 
-        <t>The required algorithm for 2-byte ASNs can be found in the <xref target="app-src-var-bgp-asn">appendix</xref>.</t>
+        <t>The algorithm shown in <xref target="auto_evpn_fid2private_AS">auto_evpn_fid2private_AS</xref> is required to derive the private ASN.</t>
       </section>
-      <section>
-        <name>Cluster ID</name>
-        <t>Route reflector nodes in each fabric MUST derive a cluster ID that is based on its Fabric ID so that it is unique across the fabric.  Implementations MAY choose to simply use the AS number as the cluster ID.</t>
 
-        <t>The required algorithm can be found in the <xref target="app-src-var-bgp-cluster-id">appendix</xref>.</t>
-      </section>
       <section>
         <name>Router ID</name>
         <t>Nodes MUST drive a Router ID that is based on both its System ID and Fabric ID so that it is unique to both.</t>
 
-        <t>The required algorithm can be found in the <xref target="app-src-var-bgp-rid">appendix</xref>.</t>
+        <t>The algorithm shown in <xref target="auto_evpn_sidfid2bgpid">auto_evpn_sidfid2bgpid</xref> is required to derive the BGP Router ID.</t>
+      </section>
+
+      <section>
+        <name>Cluster ID</name>
+        <t>Route reflector nodes in each fabric MUST derive a cluster ID that is based on its Fabric ID so that it is unique across the fabric.</t>
+
+        <t>The algorithm shown in <xref target="auto_evpn_fid2clusterid">auto_evpn_fid2clusterid</xref> is required to derive the BGP Cluster ID.</t>
       </section>
 
       <section>
@@ -459,14 +471,14 @@
 
         <t>For example, if given a MAC-VRF ID of 1, the derived route target would be "target:1"</t>
 
-        <t>The required algorithm can be found in the <xref target="app-src-var-bgp-evi-rt">appendix</xref>.</t>
+        <t>The algorithm shown in <xref target="auto_evpn_evi2rt">auto_evpn_evi2rt</xref> is required to derive the Route Target community.</t>
       </section>
       <section>
         <name>Route Distinguisher</name>
         <t>Nodes hosting EVPN EVIs MUST derive a type-0 route distinguisher based on its System ID
           and Fabric ID so that it is unique per MAC-VRF and per node.</t>
 
-        <t>The required algorithm can be found in the <xref target="app-src-var-bgp-evi-rd">appendix</xref>.</t>
+        <t>The algorithm shown in <xref target="auto_evpn_sidfid2rd">auto_evpn_sidfid2rd</xref> is required to derive the Route Distinguisher.</t>
       </section>
       <section>
         <name>EVPN MAC-VRF Services</name>
@@ -474,9 +486,13 @@
           and/or layer-3 traffic considerations.  Variables supporting these services are also derived based
           on some combination of MAC-VRF ID, Fabric ID, and other constant values.
           Integrated Routing and Bridging (IRB) gateway address derivation also leverages a set of constant
-          "random seed" values to provide additional entropy.</t>
+          <xref target="auto_evpn_const_structs_type">RANDOMSEEDS</xref> values that MUST be used to provide additional entropy.</t>
 
-        <t>The required derivation procedures can be found in the <xref target="app-src-variable-derivation">appendix</xref>.</t>
+        <t>In order to ensure that VLAN ID's don't collide, a single deployment SHOULD NOT exceed 3 fabrics with 3 EVIs where each EVI 
+            terminate 15 VLANs.  The algorithms shown in <xref target="auto_evpn_fidevivlansvlans2desc">auto_evpn_fidevivlansvlans2desc</xref> 
+            and <xref target="auto_evpn_vlan_description_table">auto_evpn_vlan_description_table</xref> are required to derive VLANs accordingly.  
+            An implementation MAY exceed this, but MUST indicate methods to ensure collision-free derivation and 
+            describe which VLANs are stretched across fabrics.</t>
         <section>
           <name>Untagged Traffic in Multiple Fabrics</name>
           <t>This section defines methods to derive unique VLAN, VNI, MAC, and gateway address values for deployments
@@ -490,22 +506,33 @@
             <name>VNI</name>
             <t>Untagged traffic stretched across multiple fabrics MUST derive VNIs based on MAC-VRF ID and
               Fabric ID in conjunction with a constant value.  These VNIs MUST correspond to EVPN Type-2 routes.</t>
+
+            <t>The algorithm shown in <xref target="auto_evpn_fidevivid2vni">auto_evpn_fidevivid2vni</xref> 
+                is required to derive VNIs for Type-2 EVPN routes.</t>
           </section>
           <section>
             <name>MAC Address</name>
             <t>The MAC address MUST be a unicast address and also MUST be identical for any IRB gateways that belong to an individual bridge-domain across fabrics.  The last 5-bytes MUST be a hash of the
               MAC-VRF ID and a constant value of 1 that is calculated using the previously mentioned random seed values.</t>
+
+            <t>The algorithm shown in <xref target="auto_evpn_fidevividsid2mac">auto_evpn_fidevividsid2mac</xref> is required 
+                to derive MAC addresses.</t>
           </section>
           <section>
             <name>IPv6 IRB Gateway Address</name>
             <t>The derived IPv6 gateway address MUST be from a ULA-scoped range that will account for the first 6-bytes.
               The next 5-bytes MUST be the last bytes of the derived MAC address.  Finally, the remaining 7-bytes MUST be ::0001.</t>
+              
+            <t>The algorithm shown in <xref target="auto_evpn_fidevividsid2v6subnet">auto_evpn_fidevividsid2v6subnet</xref> is required to derive the IPv6 gateway address.</t>
           </section>
           <section>
             <name>IPv4 IRB Gateway Address</name>
             <t>The derived IPv4 gateway address MUST be from a RFC1918 range, which accounts for the first octet.
               The next octet MUST a hash of the MAC-VRF ID and a constant value of 1 that is calculated using the previously
               mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>
+
+            <t>The algorithm shown in <xref target="auto_evpn_v4prefixfidevividsid2v4subnet">auto_evpn_v4prefixfidevividsid2v4subnet</xref> is required to 
+                derive the IPv4 gateway address.  It should be noted that there is a higher likelihood of address collisions when deriving IPv4 addresses.</t>              
           </section>
         </section>
         <section>
@@ -521,26 +548,37 @@
             <name>VNI</name>
             <t>Tagged traffic stretched across multiple fabrics MUST derive VNIs based on MAC-VRF ID and Fabric ID in
               conjunction with a constant value.  These VNIs MUST correspond to EVPN Type-2 routes.</t>
+
+            <t>The algorithm shown in <xref target="auto_evpn_fidevivid2vni">auto_evpn_fidevivid2vni</xref> 
+                is required to derive VNIs for Type-2 EVPN routes.</t>              
           </section>
           <section>
             <name>MAC Address</name>
             <t>The MAC address MUST be a unicast address and also MUST be identical for any IRB gateways that belong to an individual bridge-domain across fabrics.  The last 5-bytes MUST be a hash of the
               MAC-VRF ID and a constant value of 1 that is calculated using the previously mentioned random seed values.</t>
+
+            <t>The algorithm shown in <xref target="auto_evpn_fidevividsid2mac">auto_evpn_fidevividsid2mac</xref> is required 
+                to derive MAC addresses.</t>              
           </section>
           <section>
             <name>IPv6 IRB Gateway Address</name>
             <t>The derived IPv6 gateway address MUST be from a ULA-scoped range that will account for the first 6-bytes.  The next 5-bytes MUST be the last bytes of the derived MAC address.
               Finally, the remaining 7-bytes MUST be ::0001.</t>
+
+            <t>The algorithm shown in <xref target="auto_evpn_fidevividsid2v6subnet">auto_evpn_fidevividsid2v6subnet</xref> is required to derive the IPv6 gateway address.</t>              
           </section>
           <section>
             <name>IPv4 IRB Gateway Address</name>
             <t>The derived IPv4 gateway address MUST be from a RFC1918 range, which accounts for the first octet.  The next octet MUST a hash of the MAC-VRF ID and a constant value of 16
               that is calculated using the previously mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>
+
+            <t>The algorithm shown in <xref target="auto_evpn_v4prefixfidevividsid2v4subnet">auto_evpn_v4prefixfidevividsid2v4subnet</xref> is required to 
+                derive the IPv4 gateway address.  It should be noted that there is a higher likelihood of address collisions when deriving IPv4 addresses.</t> 
           </section> 
         </section>
         <section>
           <name>Tagged Traffic in a Single Fabric</name>
-          <t>This section defines a methods to derive unique VLAN, VNI, MAC, and gateway address values for
+          <t>This section defines a method to derive unique VLAN, VNI, MAC, and gateway address values for
             deployments where untagged traffic is contained within a single fabric.</t>
           <section>
             <name>VLAN</name>
@@ -551,19 +589,30 @@
             <name>VNI</name>
             <t>Tagged traffic contained to a single fabric MUST derive VNIs based on MAC-VRF ID and
               Fabric ID in conjunction with a constant value.  These VNIs MUST correspond to EVPN Type-2 routes.</t>
+
+            <t>The algorithm shown in <xref target="auto_evpn_fidevivid2vni">auto_evpn_fidevivid2vni</xref> 
+                is required to derive VNIs for Type-2 EVPN routes.</t>                    
           </section>
           <section>
             <name>MAC Address</name>
             <t>The MAC address MUST be a unicast address and also MUST be identical for any IRB gateways that belong to an individual bridge-domain across fabrics.  The last 5-bytes MUST be a hash of the
               MAC-VRF ID and a constant value of 1 that is calculated using the previously mentioned random seed values.</t>
+            
+            <t>The algorithm shown in <xref target="auto_evpn_fidevividsid2mac">auto_evpn_fidevividsid2mac</xref> is required 
+                to derive MAC addresses.</t>                
           </section>
           <section>
             <name>IPv6 IRB Gateway Address</name>
             <t>The derived IPv6 gateway address MUST be from a ULA-scoped range, which accounts for the first 6-bytes.  The next 5-bytes MUST be the last bytes of the derived MAC address.  Finally, the remaining 7-bytes MUST be ::0001.</t>
+            
+            <t>The algorithm shown in <xref target="auto_evpn_fidevividsid2v6subnet">auto_evpn_fidevividsid2v6subnet</xref> is required to derive the IPv6 gateway address.</t>                       
           </section>
           <section>
             <name>IPv4 IRB Gateway Address</name>
             <t>The derived IPv4 gateway address MUST be from a RFC1918 range, which accounts for the first octet.  The next octet MUST a hash of the MAC-VRF ID and a constant value of 17 that is calculated using the previously mentioned random seed values.  Finally, the remaining 2 octets MUST be 0 and 1 respectively.</t>
+
+            <t>The algorithm shown in <xref target="auto_evpn_v4prefixfidevividsid2v4subnet">auto_evpn_v4prefixfidevividsid2v4subnet</xref> is required to 
+                derive the IPv4 gateway address.  It should be noted that there is a higher likelihood of address collisions when deriving IPv4 addresses.</t>             
           </section> 
         </section>
         <section>
@@ -572,28 +621,14 @@
             <name>Route Distinguisher</name>
             <t>Nodes hosting IP Prefix routes MUST derive a type-0 route distinguisher based on its System ID and Fabric ID so that it is unique per IP-VRF and per node.</t>
 
-            <t>The required algorithm can be found in the <xref target="app-src-var-bgp-evi-rd">appendix</xref>.</t>
-          </section>
+            <t>The algorithm shown in <xref target="auto_evpn_sidfid2rd">auto_evpn_sidfid2rd</xref> is required to derive the Route Target.</t>
+        </section>
           <section>
             <name>Route Target</name>
             <t>Nodes hosting IP prefix routes MUST derive a route target extended community based on the MAC-VRF ID for each IP-VRF so that it is unique across the network.  Route targets MUST be of type 0.</t>
         
-            <t>The required algorithm can be found in the <xref target="app-src-var-bgp-evi-rt">appendix</xref>.</t>
+            <t>The algorithm shown in <xref target="auto_evpn_evi2rt">auto_evpn_evi2rt</xref> is required to derive the Route Target community.</t>
           </section>
-          <!--
-          <section>
-            <name>IPv6 Loopback Address</name>
-            <t>Nodes host IPv6 prefix routes MUST derive the additional IPv6 loopback address from the FD00:A3 range.  Calculation is done using the 6-bytes of reserved ULA space, the 2-byte Fabric ID, and the node's 8-byte System ID.</t>
-          </section>
-          <section>
-            <name>IPv4 Loopback Address</name>
-            <t>Nodes host IPv4 prefix routes MUST derive the additional IPv4 loopback address from the 127 range.  Calculation of the last 3-octets is done based on the Fabric ID and System ID.</t>
-          </section>
-          <section>
-            <name>VNI</name>
-            <t>VNI values associated with IP prefix routes MUST be derived based on MAC-VRF ID and Fabric ID in conjunction with a constant value.  These VNIs MUST correspond to EVPN Type-5 routes.</t>
-          </section>
-          -->
         </section>
       </section>
       <section>
@@ -626,7 +661,7 @@
           </tbody>
         </table>
 
-        <t>The appendix details the generic <xref target="app-src-auto-evpn-kv-schema">Auto-EVPN Key-Value schema</xref>.</t>
+        <t>The normative Thrift schema can be found in the <xref target="app-src-auto-evpn-kv-schema">appendix</xref>.</t>
         <section>
           <name>Auto-EVPN Global Analytics Key Type</name>
           <t>This Key Type describes node level information within the context of the Auto-EVPN fabric.  The 
@@ -693,6 +728,12 @@
               <dd>A 32-bit integer indicating the total number of EVPN Type-2 MAC routes.</dd>
               <dt>EVPN Type-2 MAC/IP Route Count:</dt>
               <dd>A 32-bit integer indicating the total number of EVPN Type-2 MAC/IP routes.</dd>
+              <dt>VLAN Count:</dt>
+              <dd>A 16-bit integer indicating the total number configured VLANs.</dd>
+              <dt>MAC-VRF Name:</dt>
+              <dd>A string used to indicate the name of the MAC-VRF on the node.</dd>
+              <dt>MAC-VRF Description:</dt>
+              <dd>A string used to describe the MAC-VRF on the node, similar to that of an interface description.</dd>
             </dl>
           </li>
         </ul>
@@ -702,7 +743,7 @@
   
     <section anchor="Acknowledgements" numbered="true" toc="default">
       <name>Acknowledgements</name>
-      <t>We would like to thank Olivier Vandezande for his contributions to Auto-EVPN analytics.</t>
+      <t>The authors would like to thank Olivier Vandezande, Matthew Jones, and Michal Styszynski for their contributions.</t>
     </section>
     <!-- Possibly a 'Contributors' section ... -->
     <section anchor="Security" numbered="true" toc="default">
@@ -814,8 +855,9 @@
         </reference>        
       </references>
     </references>
-    <section anchor="app-additional" numbered="true" toc="default">
-      <name>Appendix</name>
+    <section anchor="app-additional-thrift" numbered="true" toc="default">
+      <name>Thrift Models</name>
+      <t>This section contains the normative Thrift models required to support Auto-EVPN.  Per the main <xref target="RIFT">RIFT</xref> specification, all signed values MUST be interpreted as unsigned values.</t>
       <section>
         <name>RIFT LIE Schema</name>
         <section anchor="app-src-lie-ver">
@@ -862,63 +904,16 @@ struct NodeTIEElement {
 </sourcecode>
         </section>
       </section>
-      <section anchor="app-src-variable-derivation">
-        <name>Variable Derivation</name>
-        <section anchor="app-src-random-seed">
-          <name>Random Seed Values</name>
-          <t>To be provided in future version of this document.</t>
-        </section>
-        <section anchor="app-src-var-fabric-id">
-          <name>Fabric ID</name>
-          <t>To be provided in future version of this document.</t>
-        </section>
-        <section anchor="app-src-var-bgp-v6-loopback">
-          <name>Loopback Address</name>
-          <t>To be provided in future version of this document.</t>
-        </section>
-        <section anchor="app-src-var-bgp-asn">
-          <name>Autonomous System Number</name>
-          <t>To be provided in future version of this document.</t>
-        </section>
-        <section anchor="app-src-var-bgp-cluster-id">
-          <name>Cluster ID</name>
-          <t>To be provided in future version of this document.</t>
-        </section>
-        <section anchor="app-src-var-bgp-rid">
-          <name>Router ID</name>
-          <t>To be provided in future version of this document.</t>
-        </section>
-        <section anchor="app-src-var-bgp-evi-rt">
-          <name>Route Target</name>
-          <t>To be provided in future version of this document.</t>
-        </section>
-        <section anchor="app-src-var-bgp-evi-rd">
-          <name>Route Distinguisher</name>
-          <t>To be provided in future version of this document.</t>
-        </section>
-        <section anchor="app-src-var-bgp-evi-vlan">
-          <name>VLAN</name>
-          <t>To be provided in future version of this document.</t>
-        </section>
-        <section anchor="app-src-var-bgp-evi-vni">
-          <name>VNI</name>
-          <t>To be provided in future version of this document.</t>
-        </section>
-        <section anchor="app-src-var-bgp-evi-mac-gateway">
-          <name>Gateway (MAC)</name>
-          <t>To be provided in future version of this document.</t>
-        </section>
-        <section anchor="app-src-var-bgp-evi-v6-gateway">
-          <name>Gateway (IPv6)</name>
-          <t>To be provided in future version of this document.</t>
-        </section>
-        <section anchor="app-src-var-bgp-evi-v4-gateway">
-          <name>Gateway (IPv4)</name>
-          <t>To be provided in future version of this document.</t>
-        </section>
+      <section anchor="app-common-evpn-thrift">
+        <name>common_evpn.thrift</name>
+        <t>This section contains the normative Auto-EVPN Thrift schema.</t>
+        <artset>
+            <artwork align="left" name="" type="ascii-art" src="art/common_evpn.thrift.ascii-art"></artwork>
+        </artset>
       </section>
       <section anchor="app-src-auto-evpn-kv-schema">
-        <name>Auto-EVPN Key-Value Thrift Schema</name>
+        <name>auto_evpn_kv.thrift</name>
+        <t>This section contains the normative Auto-EVPN Analytics Thrift schema.</t>
         <figure>
           <name>Auto-EVPN Key-Value Thrift Schema</name>
           <artset>
@@ -926,8 +921,6 @@ struct NodeTIEElement {
           </artset>
         </figure>
       </section>
-      
-
       <!--
       <section numbered="true" toc="default">
         <name>RIFT Key-Type Registry Requests</name>
@@ -937,6 +930,78 @@ struct NodeTIEElement {
         </artset>
       </section>
       -->
+    </section>
+    <section anchor="app-additional-variable-derivation" numbered="true" toc="default">
+        <name>Auto-EVPN Variable Derivation</name>
+        <figure title="auto_evpn_imports" anchor="auto_evpn_imports">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_imports.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_const_structs_type" anchor="auto_evpn_const_structs_type">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_const_structs_type.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_sids2rrs" anchor="auto_evpn_sids2rrs">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_sids2rrs.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_v62octets" anchor="auto_evpn_v62octets">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_v62octets.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_fid2fabric_prefixes" anchor="auto_evpn_fid2fabric_prefixes">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_fid2fabric_prefixes.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_v6prefixfidsid2loopback" anchor="auto_evpn_v6prefixfidsid2loopback">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_v6prefixfidsid2loopback.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_fidrrpref2rrloopback" anchor="auto_evpn_fidrrpref2rrloopback">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_fidrrpref2rrloopback.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_sidfid2bgpid" anchor="auto_evpn_sidfid2bgpid">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_sidfid2bgpid.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_evi2rt" anchor="auto_evpn_evi2rt">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_evi2rt.ascii-art"></artwork>
+        </figure>
+        <figure title="auto-evpn_fidevi2type5vni" anchor="auto-evpn_fidevi2type5vni">
+            <artwork align="left" type="ascii-art" src="art/auto-evpn_fidevi2type5vni.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_fidevivid2vni" anchor="auto_evpn_fidevivid2vni">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_fidevivid2vni.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_vlan_description_table" anchor="auto_evpn_vlan_description_table">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_vlan_description_table.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_fidevivlansvlans2desc" anchor="auto_evpn_fidevivlansvlans2desc">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_fidevivlansvlans2desc.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_fidevivid2irb" anchor="auto_evpn_fidevivid2irb">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_fidevivid2irb.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_sidfid2rd" anchor="auto_evpn_sidfid2rd">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_sidfid2rd.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_v4prefixfidevividsid2v4subnet" anchor="auto_evpn_v4prefixfidevividsid2v4subnet">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_v4prefixfidevividsid2v4subnet.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_v6hash" anchor="auto_evpn_v6hash">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_v6hash.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_fidevividsid2v6subnet" anchor="auto_evpn_fidevividsid2v6subnet">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_fidevividsid2v6subnet.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_fidevividsid2mac" anchor="auto_evpn_fidevividsid2mac">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_fidevividsid2mac.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_fidsid2v4loopback" anchor="auto_evpn_fidsid2v4loopback">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_fidsid2v4loopback.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_fidsidv6loopback" anchor="auto_evpn_fidsidv6loopback">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_fidsidv6loopback.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_fid2private_AS" anchor="auto_evpn_fid2private_AS">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_fid2private_AS.ascii-art"></artwork>
+        </figure>
+        <figure title="auto_evpn_fid2clusterid" anchor="auto_evpn_fid2clusterid">
+            <artwork align="left" type="ascii-art" src="art/auto_evpn_fid2clusterid.ascii-art"></artwork>
+        </figure>
     </section>
   </back>
 </rfc>

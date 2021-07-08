@@ -1,0 +1,19 @@
+/// constant VLAN shift
+pub const FIRST_VLAN_SHIFT: VLANIDType = 16;
+/// NATIVE VLAN number
+pub const NATIVE_VLAN: VLANIDType = 1;
+
+/// abstract description of VLAN properties for a derived VLAN
+pub struct VLANDescription {
+    pub vlan_id: VLANIDType,
+    pub name: String,
+    /// can this VLAN be stretched across multiple fabrics
+    pub stretchable: bool,
+    pub native: bool,
+}
+
+/// maximum number of VLANs per MACVRF
+pub const MAX_VLANS_PER_EVI: usize = 15;
+
+pub type VLANStretchableType = bool;
+pub type VLANNativeType = bool;

@@ -1,0 +1,7 @@
+#[allow(non_snake_case)]
+pub fn auto_evpn_fid2private_AS(fid: FabricIDType) -> u32 {
+    assert!(fid != NO_FABRIC_ID);
+    // range 4200000000-4294967294
+    const DIFF: u32 = 4_294_967_294 - 4_200_000_000;
+    64496 + ((fid as u32) << 3) % DIFF
+}

@@ -1,0 +1,47 @@
+/// delivers the vlan description that can be used to generate vlans for a
+/// specific fabric ID and a MACVRF number
+pub fn auto_evpn_fidevivlansvlans2desc(fid: FabricIDType, macvrf: MACVRFNumberType,
+                                       vlans: usize) -> Vec<VLANDescription> {
+
+    assert!(NO_MACVRF != macvrf);
+
+    // abstract description of derived VLANs
+    let vlan_table = auto_evpn_vlan_description_table(vlans)
+        .expect("vlan table in AUTO EVPN incorrect");
+
+    let vlanshift = vlan_table
+        .iter()
+        .map(|(vl, _, _)| *vl as usize)
+        .max()
+        .expect("vlan table in AUTO EVPN incorrect")
+        .checked_next_power_of_two()
+        .expect("vlan table in AUTO EVPN incorrect");
+
+    assert!(vlan_table.len() < FIRST_VLAN_SHIFT as _);
+
+    vlan_table
+        .iter()
+        .map(move |(vid, stretch, native_)| {
+            let stretchedfid = if !stretch {
+                fid
+            } else {
+                NO_FABRIC_ID
+            };
+
+            let mut vlan_id = *vid ^ stretchedfid
+                .rotate_left(max(16, vlanshift as u32 + 8)) as VLANIDType;
+            // leave space for VLANs in the encoding
+            vlan_id ^= macvrf.rotate_left(vlanshift as _) as VLANIDType;
+
+            vlan_id %= MAX_VLAN;
+            vlan_id = max(1, vlan_id);
+
+            VLANDescription {
+                vlan_id: vlan_id as _,
+                name: format!("V{}", vlan_id),
+                stretchable: *stretch,
+                native: *native_,
+            }
+        })
+        .collect()
+}

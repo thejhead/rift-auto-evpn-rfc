@@ -1,0 +1,14 @@
+/// MAC address derivation for IRB
+pub fn auto_evpn_fidevividsid2mac(fid: FabricIDType, evi: MACVRFNumberType,
+                                  vid: VLANIDType, sid: UnsignedSystemID) -> Vec<u8> {
+
+    let sb = auto_evpn_v6hash(fid, evi, vid, sid);
+
+    vec![0x02,
+         sb[3] ^ sb[0],
+         sb[4] ^ sb[1],
+         sb[5] ^ sb[2],
+         sb[6],
+         sb[7],
+    ]
+}

@@ -31,6 +31,7 @@ const i8            AutoEVPNTelemetryKV       = 3
     3rd/4th bytes MUST be = FabricIDType
 */
 struct AutoEVPNTelemetryGlobalKV {
+    /** Only values that the ToF cannot derive itself should be flooded. */
     1: required   set<AutoEVPNRole>            auto_evpn_roles,
 
     /** Established BGP peer count (for Auto-EVPN)
@@ -44,7 +45,7 @@ struct AutoEVPNTelemetryGlobalKV {
     Part of the key is used as MAC-VRF number.
 
     1st     byte  MUST be = "Well-Known"
-    2nd     byte  MUST be = "MAC-VRF Auto-EVPN Telemetry KV",
+    2nd     byte  MUST be = indicates "Auto-EVPN Telemetry KV",
     3rd/4th bytes MUST be = MACVRFNumberType
 */
 struct AutoEVPNTelemetryMACVRFKV {
@@ -65,4 +66,13 @@ struct AutoEVPNTelemetryMACVRFKV {
 
     /** Local EVPN Type-2 MAC/IP route count
     6: optional  AutoEVPNLongCounterType       local_evpn_type2_mac_ip_routes,
+
+    /** number of configured VLANs */
+    7: optional  i16                           configured_vlans,
+
+    /** optional human readable name */
+    8: optional  string                        name,
+
+    /** optional human readable string describing the MAC-VRF */
+    9: optional  string                        description,
 }

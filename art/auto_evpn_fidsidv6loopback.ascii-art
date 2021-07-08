@@ -1,0 +1,5 @@
+/// V6 loopback derivation for every node in auto-evpn
+pub fn auto_evpn_fidsidv6loopback(fid: FabricIDType,
+                                  sid: UnsignedSystemID) -> Result<Ipv6Addr, ServiceErrorType> {
+    auto_evpn_v6prefixfidsid2loopback(AUTO_EVPN_V6PREF, fid, sid)
+}
