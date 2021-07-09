@@ -5,8 +5,8 @@
 RIFT                                                        J. Head, Ed.
 Internet-Draft                                             T. Przygienda
 Intended status: Standards Track                                  W. Lin
-Expires: 9 January 2022                                 Juniper Networks
-                                                             8 July 2021
+Expires: 10 January 2022                                Juniper Networks
+                                                             9 July 2021
 
 
                              RIFT Auto-EVPN
@@ -33,7 +33,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 9 January 2022.
+   This Internet-Draft will expire on 10 January 2022.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Head, et al.             Expires 9 January 2022                 [Page 1]
+Head, et al.             Expires 10 January 2022                [Page 1]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Head, et al.             Expires 9 January 2022                 [Page 2]
+Head, et al.             Expires 10 January 2022                [Page 2]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -165,7 +165,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                 [Page 3]
+Head, et al.             Expires 10 January 2022                [Page 3]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -221,7 +221,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                 [Page 4]
+Head, et al.             Expires 10 January 2022                [Page 4]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -277,7 +277,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                 [Page 5]
+Head, et al.             Expires 10 January 2022                [Page 5]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -333,7 +333,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                 [Page 6]
+Head, et al.             Expires 10 January 2022                [Page 6]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -389,7 +389,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                 [Page 7]
+Head, et al.             Expires 10 January 2022                [Page 7]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -445,7 +445,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                 [Page 8]
+Head, et al.             Expires 10 January 2022                [Page 8]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -501,7 +501,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                 [Page 9]
+Head, et al.             Expires 10 January 2022                [Page 9]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -557,7 +557,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 10]
+Head, et al.             Expires 10 January 2022               [Page 10]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -613,7 +613,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 11]
+Head, et al.             Expires 10 January 2022               [Page 11]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -669,7 +669,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 12]
+Head, et al.             Expires 10 January 2022               [Page 12]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -725,7 +725,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 13]
+Head, et al.             Expires 10 January 2022               [Page 13]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -781,7 +781,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 14]
+Head, et al.             Expires 10 January 2022               [Page 14]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -837,7 +837,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 15]
+Head, et al.             Expires 10 January 2022               [Page 15]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -893,7 +893,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 16]
+Head, et al.             Expires 10 January 2022               [Page 16]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -949,7 +949,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 17]
+Head, et al.             Expires 10 January 2022               [Page 17]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -994,18 +994,18 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
    [RIFT]     Przygienda, T., Sharma, A., Thubert, P., Rijsman, B., and
               D. Afanasiev, "RIFT: Routing in Fat Trees", Work in
-              Progress, draft-ietf-rift-rift-12, May 2020.
+              Progress, draft-ietf-rift-rift-13, July 2021.
 
-   [RIFT-KV]  Head, J. and A. Przygienda, "RIFT Keys Structure and Well-
+   [RIFT-KV]  Head, J. and T. Przygienda, "RIFT Keys Structure and Well-
               Known Registry in Key Value TIE", Work in Progress, draft-
-              head-rift-kv-registry, February 2021.
+              head-rift-kv-registry-01, July 2021.
 
 
 
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 18]
+Head, et al.             Expires 10 January 2022               [Page 18]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1061,7 +1061,7 @@ A.3.  common_evpn.thrift
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 19]
+Head, et al.             Expires 10 January 2022               [Page 19]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1117,7 +1117,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 20]
+Head, et al.             Expires 10 January 2022               [Page 20]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1173,7 +1173,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 21]
+Head, et al.             Expires 10 January 2022               [Page 21]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1229,7 +1229,7 @@ A.4.  auto_evpn_kv.thrift
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 22]
+Head, et al.             Expires 10 January 2022               [Page 22]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1285,7 +1285,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 23]
+Head, et al.             Expires 10 January 2022               [Page 23]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1341,7 +1341,7 @@ Appendix B.  Auto-EVPN Variable Derivation
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 24]
+Head, et al.             Expires 10 January 2022               [Page 24]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1397,7 +1397,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 25]
+Head, et al.             Expires 10 January 2022               [Page 25]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1453,7 +1453,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 26]
+Head, et al.             Expires 10 January 2022               [Page 26]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1509,7 +1509,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 27]
+Head, et al.             Expires 10 January 2022               [Page 27]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1565,7 +1565,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 28]
+Head, et al.             Expires 10 January 2022               [Page 28]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1621,7 +1621,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 29]
+Head, et al.             Expires 10 January 2022               [Page 29]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1677,7 +1677,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 30]
+Head, et al.             Expires 10 January 2022               [Page 30]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1733,7 +1733,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 31]
+Head, et al.             Expires 10 January 2022               [Page 31]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1789,7 +1789,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 32]
+Head, et al.             Expires 10 January 2022               [Page 32]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1845,7 +1845,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 33]
+Head, et al.             Expires 10 January 2022               [Page 33]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1901,7 +1901,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 34]
+Head, et al.             Expires 10 January 2022               [Page 34]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -1957,7 +1957,7 @@ Internet-Draft               RIFT Auto-EVPN                    July 2021
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 35]
+Head, et al.             Expires 10 January 2022               [Page 35]
 
 Internet-Draft               RIFT Auto-EVPN                    July 2021
 
@@ -2013,4 +2013,4 @@ Authors' Addresses
 
 
 
-Head, et al.             Expires 9 January 2022                [Page 36]
+Head, et al.             Expires 10 January 2022               [Page 36]

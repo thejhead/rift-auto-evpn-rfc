@@ -27,7 +27,7 @@
 
    <title abbrev="RIFT Auto-EVPN">RIFT Auto-EVPN</title>
     <seriesInfo name="Internet-Draft" value="draft-head-rift-auto-evpn-01"/>
-   <author fullname="Jordan Head" initials="J." role="editor" surname="Head">
+   <author role="editor" fullname="Jordan Head" initials="J." surname="Head">
       <organization>Juniper Networks</organization>
       <address>
         <postal>
@@ -87,7 +87,7 @@
     <date year="2021"/>
 
    <area>Routing Area</area>
-    <workgroup>RIFT</workgroup>
+   <workgroup>RIFT</workgroup>
 
    <keyword>rift</keyword>
    <keyword>kv</keyword>
@@ -794,7 +794,7 @@
         <reference anchor="RIFT">
           <front>
             <title>RIFT: Routing in Fat Trees</title>
-              <seriesInfo name="Work in Progress," value="draft-ietf-rift-rift-12"/>
+              <seriesInfo name="Work in Progress," value="draft-ietf-rift-rift-13"/>
             <author initials="T." surname="Przygienda" fullname="Tony Przygienda">
               <organization/>
             </author>
@@ -810,20 +810,20 @@
             <author initials="D." surname="Afanasiev" fullname="Dmitry Afanasiev">
               <organization/>
             </author>
-            <date month="May" year="2020"/>
+            <date month="July" year="2021"/>
           </front>
         </reference>
         <reference anchor="RIFT-KV">
           <front>
             <title>RIFT Keys Structure and Well-Known Registry in Key Value TIE</title>
-              <seriesInfo name="Work in Progress," value="draft-head-rift-kv-registry"/>
+              <seriesInfo name="Work in Progress," value="draft-head-rift-kv-registry-01"/>
             <author initials="J." surname="Head" fullname="Jordan Head">
               <organization/>
             </author>
-            <author initials="A." surname="Przygienda" fullname="Tony Przygienda">
+            <author initials="T." surname="Przygienda" fullname="Tony Przygienda">
               <organization/>
             </author>
-            <date month="February" year="2021"/>
+            <date month="July" year="2021"/>
           </front>
         </reference>
         <reference anchor="RFC7432" target="https://www.rfc-editor.org/info/rfc7432" xml:base="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7432.xml">
@@ -921,15 +921,6 @@ struct NodeTIEElement {
           </artset>
         </figure>
       </section>
-      <!--
-      <section numbered="true" toc="default">
-        <name>RIFT Key-Type Registry Requests</name>
-        <t>This section requests the following suggested values from the RIFT Key-Type Registry.</t>
-        <artset>
-          <artwork align="left" name="" type="ascii-art" src="art/auto-evpn-kv-iana-entries.ascii-art"/>
-        </artset>
-      </section>
-      -->
     </section>
     <section anchor="app-additional-variable-derivation" numbered="true" toc="default">
         <name>Auto-EVPN Variable Derivation</name>
