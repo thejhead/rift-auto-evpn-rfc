@@ -1,6 +1,6 @@
 /// delivers the vlan description that can be used to generate vlans for a
 /// specific fabric ID and a MACVRF number
-pub fn auto_evpn_fidevivlansvlans2desc(fid: FabricIDType, macvrf: MACVRFNumberType,
+pub fn auto_evpn_fidevivlansvlans2desc(fid: UnsignedFabricIDType, macvrf: MACVRFNumberType,
                                        vlans: usize) -> Vec<VLANDescription> {
 
     assert!(NO_MACVRF != macvrf);
@@ -25,13 +25,13 @@ pub fn auto_evpn_fidevivlansvlans2desc(fid: FabricIDType, macvrf: MACVRFNumberTy
             let stretchedfid = if !stretch {
                 fid
             } else {
-                NO_FABRIC_ID
+                NO_FABRIC_ID as _
             };
 
             let mut vlan_id = *vid ^ stretchedfid
-                .rotate_left(max(16, vlanshift as u32 + 8)) as VLANIDType;
+                .rotate_left(max(16, vlanshift as u32 + 9)) as UnsignedVLANIDType;
             // leave space for VLANs in the encoding
-            vlan_id ^= macvrf.rotate_left(vlanshift as _) as VLANIDType;
+            vlan_id ^= macvrf.rotate_left(vlanshift as _) as UnsignedVLANIDType;
 
             vlan_id %= MAX_VLAN;
             vlan_id = max(1, vlan_id);

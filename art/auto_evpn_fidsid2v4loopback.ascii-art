@@ -1,13 +1,14 @@
-/// v4 loopback address derivation for every node in auto-evpn
-pub fn auto_evpn_fidsid2v4loopback(fid: FabricIDType, sid: UnsignedSystemID) -> IPv4Address {
+/// v4 loopback address derivation for every node in auto-evpn, returns address and
+/// subnet mask length
+pub fn auto_evpn_fidsid2v4loopback(fid: FabricIDType, sid: UnsignedSystemID) -> (IPv4Address, u8) {
     let mut derived = sid.to_ne_bytes().iter()
         .fold(0 as IPv4Address, |p, e| (p << 4) ^ (*e as IPv4Address));
     derived ^= fid as IPv4Address;
     // use the byte we loose for entropy
     derived ^= derived >> 24;
-    // and sanitize for loopback range
-    derived &= 0x00ff_ffff;
+    // and sanitize for loopback range, we nuke 9 bits out
+    derived &= 0x007f_ffff;
 
     let m = ((127 as IPv4Address) << 24) | derived;
-    m as _
+    (m as _, 9)
 }

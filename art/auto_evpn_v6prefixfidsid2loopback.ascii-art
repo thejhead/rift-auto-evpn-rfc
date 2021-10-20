@@ -3,9 +3,8 @@
 pub fn auto_evpn_v6prefixfidsid2loopback(v6pref: &str, fid: FabricIDType,
                                          sid: UnsignedSystemID) -> Result<Ipv6Addr, ServiceErrorType> {
     assert!(fid != 0);
-    let a = format!("{}{:02X}::{}",
+    let a = format!("{}00::{}",
                     v6pref,
-                    fid as u16,
                     sid.to_ne_bytes()
                         .iter()
                         .chunks(2)

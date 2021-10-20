@@ -18,7 +18,7 @@ use foundation::models::common::IPv6Address;
 use foundation::models::common::LEAF_LEVEL;
 use foundation::models::common_services::ServiceErrorType;
 use foundation::models::common_evpn::{DEFAULT_EVIS, DEFAULT_VLANS_PER_EVI,
-                                          DEFAULT_EVPNZTP_STARTUP_DELAY, DEFAULT_FABRIC_ID, DEFAULT_INTERFACE_CE_DELAY,
+                                          DEFAULT_A_U_T_O_E_V_P_N_STARTUP_DELAY, DEFAULT_FABRIC_ID, DEFAULT_INTERFACE_CE_DELAY,
                                           DEFAULT_LEAF_DELAY, EVPNAnyRole, EVPNLeafRole,
                                           EVPNRoles, EVPNRRRole, UnitType};
 use foundation::models::common_evpn::CEInterfaceType;

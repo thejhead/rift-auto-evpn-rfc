@@ -35,6 +35,13 @@ struct EVPNAnyRole {
     9: required   string                                bgp_group_name,
     /** fabric prefixes to be advertised in rift instead of default */
    10: required   set<common.IPPrefixType>              fabric_prefixes,
+    /** v6 loopback prefix range, used e.g. to clean up config  */
+   20: required   common.IPv6PrefixType                 v6_loopback_range,
+   21: required   common.IPv6PrefixType                 rr_loopback_range,
+   22: required   common.IPv6PrefixType                 type5_loopback_range,
+   23: required   common.IPv4PrefixType                 type5_v4_loopback_range,
+    /** v6 addresses of all possible RR loopbacks in this config. Can be used for e.g. cleanup */
+   24: required   set<common.IPv6PrefixType>            possible_elected_rrs,
 }
 
 struct PartialEVPNEVI {
@@ -122,5 +129,5 @@ struct EVPNRoles {
 
 const common.TimeIntervalInSecType          default_leaf_delay = 120
 const common.TimeIntervalInSecType          default_interface_ce_delay = 180
-/// default delay before EVPNZTP FSM starts to compute anything
-const common.TimeIntervalInSecType          default_evpnztp_startup_delay = 60
+/// default delay before AUTOEVPN FSM starts to compute anything
+const common.TimeIntervalInSecType          default_AUTOEVPN_startup_delay = 60

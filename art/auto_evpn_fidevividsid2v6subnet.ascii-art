@@ -1,3 +1,4 @@
+/// v6 subnet derivation
 pub fn auto_evpn_fidevividsid2v6subnet(fid: FabricIDType, evi: MACVRFNumberType,
                                        vid: VLANIDType,
                                        sid: UnsignedSystemID) -> Result<IPv6PrefixType, ServiceErrorType> {
@@ -7,13 +8,13 @@ pub fn auto_evpn_fidevividsid2v6subnet(fid: FabricIDType, evi: MACVRFNumberType,
     let sb = auto_evpn_v6hash(fid, evi, vid, sid);
 
     let a = format!("{}:{:02X}{:02X}:{:02X}{:02X}:{:02X}{:02X}::1",
-                    AUTO_EVPN_V6IRBPREF,
-                    AUTO_EVPN_V6IRBPREFFIRSTBYTE,
+                    auto_evpn_v6irbpref(fid),
                     sb[3] ^ sb[0],
                     sb[4] ^ sb[1],
-                    sb[5] ^ sb[2],
                     sb[6],
                     sb[7],
+                    sb[5],
+                    sb[2],
     );
 
     Ok(IPv6PrefixType {

@@ -1,0 +1,11 @@
+...
+/** EVPN Fabric ID */
+typedef  i16    FabricIDType
+const    bool   default_acting_auto_evpn_dci_when_tof         = false
+
+enum AutoEVPNModel {
+    ERB_VLAN_BUNDLE,
+}
+
+const AutoEVPNModel default_autoevpn_model = AutoEVPNModel.ERB_VLAN_BUNDLE
+...

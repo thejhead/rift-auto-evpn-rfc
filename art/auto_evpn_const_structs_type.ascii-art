@@ -1,4 +1,4 @@
-/// indicates how many RRs we're computing in EVPN ZTP
+/// indicates how many RRs we're computing in AUTO EVPN
 pub const MAX_AUTO_EVPN_RRS: usize = 3;
 /// indicates the fabric has no ID, used in computations to omit effects of fabric ID
 pub const NO_FABRIC_ID: FabricIDType = 0;
@@ -6,38 +6,44 @@ pub const NO_FABRIC_ID: FabricIDType = 0;
 pub const NO_MACVRF: MACVRFNumberType = 0;
 
 /// unique v6 prefix for all nodes starts with this
-pub const AUTO_EVPN_V6PREF: &str = "FD00:A1";
-/// how many bytes in a v6pref for RRs
-pub const AUTO_EVPN_V6PREFLEN: usize = 8 * 3;
+pub fn auto_evpn_v6pref(fid: FabricIDType) -> String {
+    format!("FD00:{:04X}:A1", fid)
+}
+/// how many bytes in a v6pref for different purposes
+pub const AUTO_EVPN_V6PREFLEN: usize = 8 * 5;
 /// unique v6 prefix for route reflector purposes starts like this
-pub const AUTO_EVPN_V6RRPREF: &str = "FD00:A2";
+pub fn auto_evpn_v6rrpref(fid: FabricIDType) -> String {
+    format!("FD00:{:04X}:A2", fid)
+}
 /// unique v6 prefix for type-5 purposes starts like this
-pub const AUTO_EVPN_V6T5PREF: &str = "FD00:A3";
+pub fn auto_evpn_v6t5pref(fid: FabricIDType) -> String {
+    format!("FD00:{:04X}:A3", fid)
+}
 /// unique v6 prefix for IRB prefix purposes
-pub const AUTO_EVPN_V6IRBPREF: &str = "FD00";
-/// unique v6 prefix first byte for v6 IRB prefix purposes
-pub const AUTO_EVPN_V6IRBPREFFIRSTBYTE: u8 = 0xA4;
+pub fn auto_evpn_v6irbpref(fid: FabricIDType) -> String {
+    format!("FD00:{:04X}:A4", fid)
+}
+/// 2 bytes of prefix, then fabric ID, then another byte
+pub const AUTO_EVPN_V6_FABPREFIXLEN: usize = 16 + 16 + 8;
 /// unique v4 prefix for IRB purposes
 pub const AUTO_EVPN_V4IRBPREF: &str = "10";
-/// 3 bytes of prefix type and then we have fabric ID after that
-pub const AUTO_EVPN_V6_FABPREFIXLEN: usize = 8 + 8 + 8 + 16;
 
 /// per RFC magic
 const RT_TARGET_HIGH: CommunityType = 0;
 const RT_TARGET_LOW: CommunityType = 0;
 
 /// first available VLAN number
-pub const FIRST_VLAN: VLANIDType = 1;
+pub const FIRST_VLAN: UnsignedVLANIDType = 1;
 // maximum vlan number one less than maximum to use as bitmask
-pub const MAX_VLAN: VLANIDType = 4095;
+pub const MAX_VLAN: UnsignedVLANIDType = 4095;
 /// constant VLAN shift
-pub const FIRST_VLAN_SHIFT: VLANIDType = 16;
+pub const FIRST_VLAN_SHIFT: UnsignedVLANIDType = 32;
 /// NATIVE VLAN number
-pub const NATIVE_VLAN: VLANIDType = 1;
+pub const NATIVE_VLAN: UnsignedVLANIDType = 1;
 
 /// abstract description of VLAN properties for a derived VLAN
 pub struct VLANDescription {
-    pub vlan_id: VLANIDType,
+    pub vlan_id: UnsignedVLANIDType,
     pub name: String,
     /// can this VLAN be stretched across multiple fabrics
     pub stretchable: bool,
@@ -45,17 +51,28 @@ pub struct VLANDescription {
 }
 
 /// maximum number of VLANs per MACVRF
-pub const MAX_VLANS_PER_EVI: usize = 15;
+pub const MAX_VLANS_PER_EVI: usize = 30;
+
+/// maximum number of EVIs
+pub const MAX_EVIS: MACVRFNumberType = 7;
 
 pub type VLANStretchableType = bool;
 pub type VLANNativeType = bool;
 
+pub type UnsignedVNIType = u32;
+pub type UnsignedFabricIDType = u16;
+
+pub type UnsignedUnitType = u16;
+pub type UnsignedVLANIDType = u16;
+
+pub type UnsignedRTDistinguisherType = u64;
+
 pub const EXTRATYPE5_RD_DISTINGUISHER: u32 = 0xffff_ffff;
 
 /// high bits of type 5 VNI
-const TYPE5VNIHIGH: VNIType = 0x0080_0000;
+const TYPE5VNIHIGH: UnsignedVNIType = 0x0080_0000;
 /// bitmask for type 2 VNI
-const TYPE2VNIMASK: VNIType = 0x00ff_ffff ^ TYPE5VNIHIGH;
+const TYPE2VNIMASK: UnsignedVNIType = 0x00ff_ffff ^ TYPE5VNIHIGH;
 
 /// random seeds used in several algorithms to increase entropy
 pub const RANDOMSEEDS: [u64; 4] = [

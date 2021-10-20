@@ -1,12 +1,28 @@
-pub(crate) fn auto_evpn_sids2rrs(mut v: Vec<UnsignedSystemID>) -> Vec<UnsignedSystemID> {
-    v.par_sort_unstable();
-    let r = if v.len() > 2 {
-        let mut s = v.split_off(v.len() / 2);
-        s.reverse();
-        interleave(v.into_iter(), s.into_iter()).collect()
-    } else {
-        v
-    };
+/// function sorts vector of (is_dci, systemID) first,
+/// splits of the DCIs from the non-DCIs and sorts them
+/// followed by a shuffle taking largest/smallest/2nd largest/2nd smallest.
+/// Ultimately both are merged which prefers the DCIs while
+/// still making sure that the election is stable with a system ID joining
+/// as smallest/largest.
+pub(crate) fn auto_evpn_sids2rrs(v: Vec<(bool, UnsignedSystemID)>)
+    -> Vec<UnsignedSystemID> {
+    let (dcis, nondcis): (Vec<(bool, UnsignedSystemID)>, Vec<(bool, UnsignedSystemID)>) =
+        v.into_iter().partition(|(dci, _)| *dci);
 
-    r
+    vec![dcis, nondcis]
+        .into_iter()
+        .flat_map(|mut v| {
+            v.par_sort();
+            if v.len() > 2 {
+                let mut s = v.split_off(v.len() / 2);
+                s.reverse();
+                interleave(v.into_iter(), s.into_iter())
+                    .collect::<Vec<_>>()
+                    .into_iter()
+            } else {
+                v.into_iter()
+            }
+        })
+        .map(|(_, sid)| sid)
+        .collect()
 }
