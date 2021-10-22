@@ -1,7 +1,7 @@
                       +----------------+    +----------------+
-                      | Superspine-01  +----+ Superspine-02  |
+                      | Superspine-01  |    | Superspine-02  |
                       | Top-of-Fabric  |    | Top-of-Fabric  |
-                      | RR/DCI Gateway +----+ RR/DCI Gateway |
+                      | RR/DCI Gateway |    | RR/DCI Gateway |
                       +-+--+------+--+-+    +-+--+------+--+-+
                         |  |      |  |        |  |      |  |
   +---------------------+  |      |  |        |  |      |  |
