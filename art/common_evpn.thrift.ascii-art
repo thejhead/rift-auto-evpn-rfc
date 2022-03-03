@@ -12,7 +12,6 @@ include "common.thrift"
 include "encoding.thrift"
 include "statistics.thrift"
 
-const common.FabricIDType   default_fabric_id     = 1
 const i8                    default_evis          = 3
 const i8                    default_vlans_per_evi = 7
 

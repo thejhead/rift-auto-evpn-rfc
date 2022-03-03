@@ -9,14 +9,26 @@ struct LIEPacket {
 
 struct NodeTIEElement {
 ...
-/** It provides the optional ID of the Fabric configured */
-    21: optional common.FabricIDType             fabric_id;
-    /** It provides optional version of EVPN ZTP as 256 * MAJOR + MINOR */
-    22: optional i16                             auto_evpn_version;
-    /** ToFs in the same plane. Only carried by ToF. Multiple node TIEs can carry disjoint sets of ToFs.
-        Used in complex multi-plane elections. */
-    24: optional set<common.SystemIDType>        same_plane_tofs,
-    /** provides optionally the EVPN model supported */
-    25: optional common.AutoEVPNModel            auto_evpn_model = common.AutoEVPNModel.ERB_VLAN_BUNDLE,
+   /** All Auto EVPN elements MUST be present in at least one node TIE in each direction if auto evpn is running.  */
+   /** It provides optional version of EVPN ZTP as 256 * MAJOR + MINOR, if set auto EVPN is enabled. */
+   21: optional i16                             auto_evpn_version;
+   /** It provides the optional ID of the Fabric configured */
+   22: optional common.FabricIDType             fabric_id = common.default_fabric_id;
+   /** provides optionally the EVPN model supported */
+   25: optional common.AutoEVPNModel            auto_evpn_model = common.AutoEVPNModel.ERB_VLAN_BUNDLE,
+...
+}
+
+struct NodeCapabilities {
+...
+   /** provides the optional ID of the configured auto-evpn fabric. */
+   10: optional bool                           auto_evpn_support = false;
+...
+}
+
+struct NodeFlags {
+...
+    /** acting as DCI for auto-evpn, necessary for proper RR election where DCIs are preferred */
+    10: optional bool  
 ...
 }

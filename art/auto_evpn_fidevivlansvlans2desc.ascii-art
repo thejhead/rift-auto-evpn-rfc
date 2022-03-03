@@ -1,23 +1,28 @@
+const fn num_bits<T>() -> usize { std::mem::size_of::<T>() * 8 }
+
+fn log2(x: u32) -> u32 {
+    assert!(x > 0);
+    num_bits::<u32>() as u32 - x.leading_zeros() - 1
+}
+
 /// delivers the vlan description that can be used to generate vlans for a
 /// specific fabric ID and a MACVRF number
 pub fn auto_evpn_fidevivlansvlans2desc(fid: UnsignedFabricIDType, macvrf: MACVRFNumberType,
                                        vlans: usize) -> Vec<VLANDescription> {
-
     assert!(NO_MACVRF != macvrf);
 
     // abstract description of derived VLANs
     let vlan_table = auto_evpn_vlan_description_table(vlans)
         .expect("vlan table in AUTO EVPN incorrect");
 
-    let vlanshift = vlan_table
+    let vlanshift = log2(vlan_table
         .iter()
         .map(|(vl, _, _)| *vl as usize)
         .max()
         .expect("vlan table in AUTO EVPN incorrect")
         .checked_next_power_of_two()
-        .expect("vlan table in AUTO EVPN incorrect");
-
-    assert!(vlan_table.len() < FIRST_VLAN_SHIFT as _);
+        .expect("vlan table in AUTO EVPN incorrect")
+        as u32);
 
     vlan_table
         .iter()
@@ -28,10 +33,14 @@ pub fn auto_evpn_fidevivlansvlans2desc(fid: UnsignedFabricIDType, macvrf: MACVRF
                 NO_FABRIC_ID as _
             };
 
+            let reducedmacvrf = macvrf - MIN_MACVRF;
+
+            // we shift fid & evi same amount to extinguish them possibly
+            let fidandevishift = vlanshift + 1;
             let mut vlan_id = *vid ^ stretchedfid
-                .rotate_left(max(16, vlanshift as u32 + 9)) as UnsignedVLANIDType;
+                .rotate_left(fidandevishift) as UnsignedVLANIDType;
             // leave space for VLANs in the encoding
-            vlan_id ^= macvrf.rotate_left(vlanshift as _) as UnsignedVLANIDType;
+            vlan_id ^= reducedmacvrf.rotate_left(fidandevishift) as UnsignedVLANIDType;
 
             vlan_id %= MAX_VLAN;
             vlan_id = max(1, vlan_id);

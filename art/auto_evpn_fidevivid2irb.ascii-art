@@ -1,13 +1,14 @@
 /// IRB interface number.
 /// fid/evi combination shifted up to not interfere with the VLAN-ID
 /// and then add the VLAN-ID
-pub fn auto_evpn_fidevivid2irb(fid: FabricIDType, evi: MACVRFNumberType, vid: VLANIDType) -> UnsignedUnitType {
+pub fn auto_evpn_fidevivid2irb(_fid: FabricIDType, _evi: MACVRFNumberType, vid: VLANIDType) -> UnsignedUnitType {
 
-    assert!(NO_MACVRF != evi);
+    assert!(NO_MACVRF != _evi);
 
-    let mut v = (fid as UnsignedUnitType ^ evi.rotate_left(4) as UnsignedUnitType);
-    let mut v = v.rotate_left(2);
+    // VLAN collision function is collision free to the point we can just ignore EVI
+    // and assign IRB interface number to be same as VLAN which simplifies deployment
+    let mut v: UnsignedUnitType = 0;
 
-    v = 1 + v.wrapping_add(vid as UnsignedVLANIDType) % MAX_VLAN;
-    v % (UnsignedUnitType::MAX - 1)
+    v = v.wrapping_add(vid as UnsignedVLANIDType);
+    max(1, v % (UnsignedUnitType::MAX - 1))
 }

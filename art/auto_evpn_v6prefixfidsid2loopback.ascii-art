@@ -2,7 +2,7 @@
 /// for several different prefixes.
 pub fn auto_evpn_v6prefixfidsid2loopback(v6pref: &str, fid: FabricIDType,
                                          sid: UnsignedSystemID) -> Result<Ipv6Addr, ServiceErrorType> {
-    assert!(fid != 0);
+    assert!(fid != UNDEFINED_FABRIC_ID);
     let a = format!("{}00::{}",
                     v6pref,
                     sid.to_ne_bytes()

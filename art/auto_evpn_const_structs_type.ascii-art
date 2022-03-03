@@ -4,6 +4,8 @@ pub const MAX_AUTO_EVPN_RRS: usize = 3;
 pub const NO_FABRIC_ID: FabricIDType = 0;
 /// invalid MACVRF number, MACVRFs start from 1
 pub const NO_MACVRF: MACVRFNumberType = 0;
+/// first MACVRF
+pub const MIN_MACVRF : MACVRFNumberType  = 1;
 
 /// unique v6 prefix for all nodes starts with this
 pub fn auto_evpn_v6pref(fid: FabricIDType) -> String {
@@ -37,7 +39,7 @@ pub const FIRST_VLAN: UnsignedVLANIDType = 1;
 // maximum vlan number one less than maximum to use as bitmask
 pub const MAX_VLAN: UnsignedVLANIDType = 4095;
 /// constant VLAN shift
-pub const FIRST_VLAN_SHIFT: UnsignedVLANIDType = 32;
+pub const FIRST_VLAN_SHIFT: UnsignedVLANIDType = NATIVE_VLAN + 1;
 /// NATIVE VLAN number
 pub const NATIVE_VLAN: UnsignedVLANIDType = 1;
 
